@@ -1,0 +1,6 @@
+[submodule "aws-sdk-cpp"]
+	path = third-party/aws-sdk-cpp
+	url = https://github.com/aws/aws-sdk-cpp.git
+[submodule "third-party/aws-sdk-cpp"]
+	path = third-party/aws-sdk-cpp
+	url = https://github.com/aws/aws-sdk-cpp.git
