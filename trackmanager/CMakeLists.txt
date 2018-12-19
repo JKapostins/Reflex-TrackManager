@@ -18,3 +18,5 @@ target_link_libraries(${projectName} optimized ${CMAKE_BINARY_DIR}/libMinHook/Re
 
 target_link_libraries(${projectName} debug ${CMAKE_BINARY_DIR}/Indicium-Supra/Debug/x86/Indicium-Supra.lib)
 target_link_libraries(${projectName} optimized ${CMAKE_BINARY_DIR}/libMinHook/Release/libMinHook.x86.lib)
+
+add_dependencies(${projectName} libMinHook Indicium-Supra)
