@@ -1,0 +1,3 @@
+Source: asmjit
+Version: 2018-11-08
+Description: Complete x86/x64 JIT and Remote Assembler for C++

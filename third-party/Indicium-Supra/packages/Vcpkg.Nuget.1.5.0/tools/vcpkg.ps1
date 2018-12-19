@@ -1,0 +1,1 @@
+. $PSScriptRoot\..\vcpkg_bin\vcpkg.exe @args

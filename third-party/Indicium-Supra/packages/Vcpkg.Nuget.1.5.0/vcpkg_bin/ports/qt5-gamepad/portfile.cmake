@@ -1,0 +1,5 @@
+include(vcpkg_common_functions)
+
+include(${CURRENT_INSTALLED_DIR}/share/qt5modularscripts/qt_modular_library.cmake)
+
+qt_modular_library(qtgamepad 65200780a7a27ca6fd6bd624b38c6568eacc2209816b3214ac2b63b5e510613cd492f846b5f67922aa5605eab1064e3e6ff060b610519e0546a0005736f55274)

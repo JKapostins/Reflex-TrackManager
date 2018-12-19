@@ -1,0 +1,5 @@
+include(vcpkg_common_functions)
+
+include(${CURRENT_INSTALLED_DIR}/share/qt5modularscripts/qt_modular_library.cmake)
+
+qt_modular_library(qtserialport babf89583fc025de511601f608300a01453e06c2eebe51c0d3cad3eb9c8179fa9cf9982690306ffaf7ce0a0abb7174ae0078a1fd36f6a34a2d5277bff9d4ea9d)
