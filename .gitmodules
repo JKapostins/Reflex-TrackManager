@@ -1,3 +1,6 @@
 [submodule "vcpkg"]
-	path = local/windows-x86/third-party
+	path = local/windows-x86/third-party/vcpkg
+	url = https://github.com/Microsoft/vcpkg.git
+[submodule "local/windows-x86/third-party/vcpkg"]
+	path = local/windows-x86/third-party/vcpkg
 	url = https://github.com/Microsoft/vcpkg.git
