@@ -1,6 +1,3 @@
-[submodule "aws-sdk-cpp"]
-	path = third-party/aws-sdk-cpp
-	url = https://github.com/aws/aws-sdk-cpp.git
-[submodule "third-party/aws-sdk-cpp"]
-	path = third-party/aws-sdk-cpp
-	url = https://github.com/aws/aws-sdk-cpp.git
+[submodule "vcpkg"]
+	path = local/windows-x86/third-party
+	url = https://github.com/Microsoft/vcpkg.git
