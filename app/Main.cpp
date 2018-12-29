@@ -36,7 +36,14 @@ void main(int argc, char *argv[])
 #else
 		//Load our debug dll's from the folder where they are being compiled
 		std::string buildFolder(CMAKE_BINARY_DIR);
-		std::vector<std::string> modules{ buildFolder + "/Indicium-Supra/Debug/x86/Indicium-Supra.dll", buildFolder + "/trackmanager/Debug/TrackManager.dll" };
+		std::vector<std::string> modules
+		{
+			buildFolder + "/Indicium-Supra/Debug/x86/Indicium-Supra.dll"
+			, buildFolder + "/trackmanager/Debug/cares.dll"
+			, buildFolder + "/trackmanager/Debug/libprotobufd.dll"
+			, buildFolder + "/trackmanager/Debug/zlibd1.dll"
+			, buildFolder + "/trackmanager/Debug/TrackManager.dll"
+		};
 #endif
 
 		// Get privileges required to perform the injection

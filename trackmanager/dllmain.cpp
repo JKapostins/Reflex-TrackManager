@@ -17,9 +17,24 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx9.h"
 
+#include "grpc/testclient.h"
+
 t_WindowProc OriginalDefWindowProc = nullptr;
 t_WindowProc OriginalWindowProc = nullptr;
 PINDICIUM_ENGINE engine = nullptr;
+
+
+static void grpcTest()
+{
+	// Instantiate the client. It requires a channel, out of which the actual RPCs
+	// are created. This channel models a connection to an endpoint (in this case,
+	// localhost at port 50051). We indicate that the channel isn't authenticated
+	// (use of InsecureChannelCredentials()).
+	GreeterClient greeter(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+	std::string user("world");
+	std::string reply = greeter.SayHello(user);
+	std::cout << "Greeter received: " << reply << std::endl;
+}
 
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
 {
@@ -142,6 +157,8 @@ void EvtIndiciumD3D9PreEndScene(
 		HookWindowProc(params.hFocusWindow);
 
 		initialized = true;
+		//This is a test to communicate with an external process.
+		//grpcTest();
 
 	}, pDevice);
 
