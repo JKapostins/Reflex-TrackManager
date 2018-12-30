@@ -24,16 +24,8 @@ grpc/testclient.h
 grpc/testclient.cpp
 )
 
-set(grpcGenerated
-${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.cc
-${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.h
-${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.cc
-${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.h
-)
-
-set(SOURCE_FILES ${imguiFiles} ${trackManagerFiles} ${grpcFiles} ${grpcGenerated})
+set(SOURCE_FILES ${imguiFiles} ${trackManagerFiles} ${grpcFiles})
 
 SOURCE_GROUP(grpc FILES ${grpcFiles})
-SOURCE_GROUP(grpc\\generated FILES ${grpcGenerated})
 SOURCE_GROUP(imgui FILES ${imguiFiles})
 SOURCE_GROUP(TrackManager FILES ${trackManagerFiles})

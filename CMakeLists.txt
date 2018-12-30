@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.13.0)
-project (ReflexCustoms)
-add_subdirectory(app)
+project (ReflexTrackManager)
+add_subdirectory(injector)
+add_subdirectory(overlay)
 add_subdirectory(trackmanager)
