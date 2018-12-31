@@ -30,31 +30,31 @@ message(STATUS "Using gRPC ${gRPC_VERSION}")
 set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
-get_filename_component(hw_proto "../protos/helloworld.proto" ABSOLUTE)
-get_filename_component(hw_proto_path "${hw_proto}" PATH)
+get_filename_component(trackManagementProto "../protos/trackmanagement.proto" ABSOLUTE)
+get_filename_component(trackManagementProtoPath "${trackManagementProto}" PATH)
 
-set(hw_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.cc")
-set(hw_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.h")
-set(hw_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.cc")
-set(hw_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.h")
+set(proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/trackmanagement.pb.cc")
+set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/trackmanagement.pb.h")
+set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/trackmanagement.grpc.pb.cc")
+set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/trackmanagement.grpc.pb.h")
 
 # Generated sources
 add_custom_command(
-      OUTPUT "${hw_proto_srcs}" "${hw_proto_hdrs}" "${hw_grpc_srcs}" "${hw_grpc_hdrs}"
+      OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
       ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
         --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-        -I "${hw_proto_path}"
+        -I "${trackManagementProtoPath}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${hw_proto}"
-      DEPENDS "${hw_proto}")
+        "${trackManagementProto}"
+      DEPENDS "${trackManagementProto}")
 
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-SOURCE_GROUP(grpc\\generated FILES ${hw_proto_srcs} ${hw_grpc_srcs} ${hw_proto_hdrs} ${hw_grpc_hdrs})
+SOURCE_GROUP(grpc\\generated FILES ${proto_srcs} ${grpc_srcs} ${proto_hdrs} ${grpc_hdrs})
 
-add_library (${projectName} SHARED ${SOURCE_FILES} ${hw_proto_srcs} ${hw_grpc_srcs} ${hw_proto_hdrs} ${hw_grpc_hdrs})
+add_library (${projectName} SHARED ${SOURCE_FILES} ${proto_srcs} ${grpc_srcs} ${proto_hdrs} ${grpc_hdrs})
 
 target_include_directories(${projectName} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/Indicium-Supra/include")
 target_include_directories(${projectName} PRIVATE "../third-party/minhook/include")

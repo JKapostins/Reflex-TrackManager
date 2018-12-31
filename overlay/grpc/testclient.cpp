@@ -18,36 +18,36 @@
 
 #include "testclient.h"
 
-GreeterClient::GreeterClient(std::shared_ptr<Channel> channel)
-	: stub_(Greeter::NewStub(channel))
+TrackManagementClient::TrackManagementClient(std::shared_ptr<Channel> channel)
+	: stub_(TrackManager::NewStub(channel))
 {
 }
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-std::string GreeterClient::SayHello(const std::string& user)
+std::vector<Track> TrackManagementClient::GetTracks()
 {
-	// Data we are sending to the server.
-	HelloRequest request;
-	request.set_name(user);
-
+	Empty request;
 	// Container for the data we expect from the server.
-	HelloReply reply;
+	TrackResponse reply;
 
 	// Context for the client. It could be used to convey extra information to
 	// the server and/or tweak certain RPC behaviors.
 	ClientContext context;
 
 	// The actual RPC.
-	Status status = stub_->SayHello(&context, request, &reply);
+	Status status = stub_->GetTracks(&context, request, &reply);
 
 	// Act upon its status.
+	std::vector<Track> tracks;
 	if (status.ok()) {
-		return reply.message();
+		auto trackResponse = reply.tracks();
+		tracks.reserve(trackResponse.size());
+
+		for (auto& track : trackResponse) {
+			tracks.push_back(track);
+		}
+
 	}
-	else {
-		std::cout << status.error_code() << ": " << status.error_message()
-			<< std::endl;
-		return "RPC failed";
-	}
+	return tracks;
 }

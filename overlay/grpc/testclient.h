@@ -25,24 +25,25 @@
 #ifdef BAZEL_BUILD
 #include "examples/protos/helloworld.grpc.pb.h"
 #else
-#include "helloworld.grpc.pb.h"
+#include "trackmanagement.grpc.pb.h"
 #endif
 
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
-using helloworld::HelloRequest;
-using helloworld::HelloReply;
-using helloworld::Greeter;
+using trackmanagement::Track;
+using trackmanagement::Empty;
+using trackmanagement::TrackResponse;
+using trackmanagement::TrackManager;
 
-class GreeterClient {
+class TrackManagementClient {
  public:
-	 GreeterClient(std::shared_ptr<Channel> channel);
+	 TrackManagementClient(std::shared_ptr<Channel> channel);
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
-	 std::string SayHello(const std::string& user);
+	 std::vector<Track> GetTracks();
 
  private:
-  std::unique_ptr<Greeter::Stub> stub_;
+  std::unique_ptr<TrackManager::Stub> stub_;
 };

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package trackmanagement;
+
+// The greeting service definition.
+service TrackManager {
+  // Sends a greeting
+  rpc GetTracks (Empty) returns (TrackResponse) {}
+}
+
+message Empty {
+}
+
+// The response message containing the greetings
+message TrackResponse {
+  repeated Track tracks = 1;
+}
+
+message Track {
+  string name = 1;
+}
