@@ -4,9 +4,6 @@
 [submodule "local/windows-x86/third-party/vcpkg"]
 	path = local/windows-x86/third-party/vcpkg
 	url = https://github.com/Microsoft/vcpkg.git
-[submodule "Reflex-Utility"]
-	path = trackmanager/Utility
-	url = https://github.com/JKapostins/Reflex-Utility.git
-[submodule "trackmanager/Utility"]
-	path = trackmanager/Utility
+[submodule "trackmanager/Reflex-Utility"]
+	path = trackmanager/Reflex-Utility
 	url = https://github.com/JKapostins/Reflex-Utility.git
