@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Proto\Proto.csproj" />
+    <ProjectReference Include="..\Reflex-Utility\ReflexUtility.csproj" />
   </ItemGroup>
 
 </Project>

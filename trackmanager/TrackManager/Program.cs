@@ -1,22 +1,31 @@
 using System;
 using System.Threading.Tasks;
 using Grpc.Core;
+using System.Linq;
+using Google.Protobuf.Collections;
 
-namespace Trackmanagement
+namespace TrackManagement
 {
-    class TrackManagerImpl : TrackManager.TrackManagerBase
+    class TrackManagerImpl : Trackmanagement.TrackManager.TrackManagerBase
     {
-        // Server side handler of the SayHello RPC
-        public override Task<TrackResponse> GetTracks(Empty request, ServerCallContext context)
+        public TrackManagerImpl(Track[] tracks)
         {
-            return Task.FromResult(new TrackResponse {
-                Tracks =
+            m_tracks = tracks;
+        }
+
+        // Server side handler of the SayHello RPC
+        public override Task<Trackmanagement.TrackResponse> GetTracks(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            return Task.FromResult(new Trackmanagement.TrackResponse
+            {
+                Tracks = { m_tracks.Select(t => new Trackmanagement.Track
                 {
-                      new Track { Name = "Track 1" }
-                    , new Track { Name = "Track 2" }
-                }
+                    Name = t.TrackName
+                }).ToArray() }
             });
         }
+
+        private Track[] m_tracks;
     }
 
     class Program
@@ -25,9 +34,11 @@ namespace Trackmanagement
 
         public static void Main(string[] args)
         {
+            var tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
+
             Server server = new Server
             {
-                Services = { TrackManager.BindService(new TrackManagerImpl()) },
+                Services = { Trackmanagement.TrackManager.BindService(new TrackManagerImpl(tracks)) },
                 Ports = { new ServerPort("localhost", Port, ServerCredentials.Insecure) }
             };
             server.Start();
