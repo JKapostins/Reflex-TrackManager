@@ -30,10 +30,10 @@ static void grpcTest()
 	// are created. This channel models a connection to an endpoint (in this case,
 	// localhost at port 50051). We indicate that the channel isn't authenticated
 	// (use of InsecureChannelCredentials()).
-	/*GreeterClient greeter(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+	GreeterClient greeter(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
 	std::string user("world");
 	std::string reply = greeter.SayHello(user);
-	std::cout << "Greeter received: " << reply << std::endl;*/
+	std::cout << "Greeter received: " << reply << std::endl;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
@@ -158,7 +158,7 @@ void EvtIndiciumD3D9PreEndScene(
 
 		initialized = true;
 		//This is a test to communicate with an external process.
-		//grpcTest();
+		grpcTest();
 
 	}, pDevice);
 

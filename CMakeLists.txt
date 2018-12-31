@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.13.0)
-project (ReflexTrackManager)
+
+
+set(SOLUTION_NAME ReflexTrackManager)
+project (${SOLUTION_NAME})
 add_subdirectory(injector)
 add_subdirectory(overlay)
-add_subdirectory(trackmanager)

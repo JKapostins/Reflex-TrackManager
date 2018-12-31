@@ -32,17 +32,24 @@ void main(int argc, char *argv[])
 #if !defined(GNARLY_DEBUG)
 		//The user didn't pass any custom arguments so we load the dlls sitting next to the executeable
 		std::string currentDirectory = GetCurrentDirectory();
-		std::vector<std::string> modules{ currentDirectory + "Indicium-Supra.dll", currentDirectory + "TrackManager.dll" };
+		std::vector<std::string> modules
+		{
+			currentDirectory + "Indicium-Supra.dll"
+			, currentDirectory + "cares.dll"
+			, currentDirectory + "libprotobuf.dll"
+			, currentDirectory + "zlib.dll"
+			, currentDirectory + "TrackManager-Overlay.dll"
+		};
 #else
 		//Load our debug dll's from the folder where they are being compiled
 		std::string buildFolder(CMAKE_BINARY_DIR);
 		std::vector<std::string> modules
 		{
 			buildFolder + "/Indicium-Supra/Debug/x86/Indicium-Supra.dll"
-			, buildFolder + "/trackmanager/Debug/cares.dll"
-			, buildFolder + "/trackmanager/Debug/libprotobufd.dll"
-			, buildFolder + "/trackmanager/Debug/zlibd1.dll"
-			, buildFolder + "/trackmanager/Debug/TrackManager.dll"
+			, buildFolder + "/overlay/Debug/cares.dll"
+			, buildFolder + "/overlay/Debug/libprotobufd.dll"
+			, buildFolder + "/overlay/Debug/zlibd1.dll"
+			, buildFolder + "/overlay/Debug/TrackManager-Overlay.dll"
 		};
 #endif
 
