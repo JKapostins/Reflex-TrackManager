@@ -18,4 +18,11 @@ message TrackResponse {
 
 message Track {
   string name = 1;
+  string type = 2;
+  string image = 3;
+  string author = 4;
+  string date = 5;
+  int32 downloads = 6;
+  int32 slot = 7;
+  bool favorite = 8;
 }

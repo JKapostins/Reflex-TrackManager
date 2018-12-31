@@ -1,8 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using Grpc.Core;
+using System;
+using System.IO;
 using System.Linq;
-using Google.Protobuf.Collections;
+using System.Threading.Tasks;
 
 namespace TrackManagement
 {
@@ -16,13 +16,29 @@ namespace TrackManagement
         // Server side handler of the SayHello RPC
         public override Task<Trackmanagement.TrackResponse> GetTracks(Trackmanagement.Empty request, ServerCallContext context)
         {
+            string currentDirectory = Environment.CurrentDirectory;
             return Task.FromResult(new Trackmanagement.TrackResponse
             {
                 Tracks = { m_tracks.Select(t => new Trackmanagement.Track
                 {
-                    Name = t.TrackName
+                    Name = t.TrackName,
+                    Type = t.TrackType,
+                    Image = string.Format("{0}\\Images\\{1}", currentDirectory, Path.GetFileName(t.ThumbnailUrl).Replace("+", " ")),
+                    Author = t.Author,
+                    Slot = t.SlotNumber,
+                    Date = UnixTimeStampToString(t.CreationTime),
+                    Downloads = 0,
+                    Favorite = false,
+                    
                 }).ToArray() }
             });
+        }
+
+        public static string UnixTimeStampToString(long unixTimeStamp)
+        {
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
+            return dtDateTime.ToString("yyyy-MM-dd");
         }
 
         private Track[] m_tracks;
@@ -35,7 +51,7 @@ namespace TrackManagement
         public static void Main(string[] args)
         {
             var tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
-
+            var dir = Environment.CurrentDirectory;
             Server server = new Server
             {
                 Services = { Trackmanagement.TrackManager.BindService(new TrackManagerImpl(tracks)) },
