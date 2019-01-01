@@ -51,6 +51,7 @@ add_custom_command(
 
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
 SOURCE_GROUP(grpc\\generated FILES ${proto_srcs} ${grpc_srcs} ${proto_hdrs} ${grpc_hdrs})
 

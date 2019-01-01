@@ -1,38 +1,21 @@
-
 #include "dllmain.h"
-
-// 
-// MinHook
-// 
 #include <MinHook.h>
-
-// 
-// STL
-// 
 #include <mutex>
+#include <memory>
 
-// 
-// ImGui includes
-// 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx9.h"
-
-#include "grpc/testclient.h"
+#include "reflex/OverlayKernel.h"
 
 t_WindowProc OriginalDefWindowProc = nullptr;
 t_WindowProc OriginalWindowProc = nullptr;
 PINDICIUM_ENGINE engine = nullptr;
 
+std::unique_ptr<OverlayKernel> reflexOverlay = nullptr;
 
-static void grpcTest()
+void initializeClient()
 {
-	// Instantiate the client. It requires a channel, out of which the actual RPCs
-	// are created. This channel models a connection to an endpoint (in this case,
-	// localhost at port 50051). We indicate that the channel isn't authenticated
-	// (use of InsecureChannelCredentials()).
-	TrackManagementClient trackManagement(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-	auto reply = trackManagement.GetTracks();
-	std::cout << "Tracks received: " << reply.size() << std::endl;
+	reflexOverlay = std::make_unique<OverlayKernel>();
 }
 
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
@@ -138,7 +121,7 @@ void EvtIndiciumD3D9PreEndScene(
 	static std::once_flag init;
 
 	//
-	// This section is only called once to initialize ImGui
+	// This section is only called once to initialize ImGui and the client
 	// 
 	std::call_once(init, [&](LPDIRECT3DDEVICE9 pd3dDevice)
 	{
@@ -154,17 +137,16 @@ void EvtIndiciumD3D9PreEndScene(
 		ImGui_ImplDX9_Init(params.hFocusWindow, pd3dDevice);
 
 		HookWindowProc(params.hFocusWindow);
+		initializeClient();
 
 		initialized = true;
-		//This is a test to communicate with an external process.
-		grpcTest();
 
 	}, pDevice);
 
 	if (!initialized)
 		return;
 
-	TOGGLE_STATE(VK_F12, show_overlay);
+	TOGGLE_STATE(VK_F11, show_overlay);
 	if (!show_overlay) 
 		return;
 
@@ -229,7 +211,7 @@ void EvtIndiciumD3D9PresentEx(
 	if (!initialized)
 		return;
 
-	TOGGLE_STATE(VK_F12, show_overlay);
+	TOGGLE_STATE(VK_F11, show_overlay);
 	if (!show_overlay) 
 		return;
 
@@ -340,6 +322,7 @@ LRESULT WINAPI DetourWindowProc(
 
 void RenderScene()
 {
+	reflexOverlay->render();
 	ImGui::ShowMetricsWindow();
 
 	{

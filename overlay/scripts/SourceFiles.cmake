@@ -6,6 +6,7 @@ imgui/imgui.cpp
 imgui/imgui.h
 imgui/imgui_demo.cpp
 imgui/imgui_draw.cpp
+imgui/imgui_widgets.cpp
 imgui/imgui_impl_dx9.cpp
 imgui/imgui_impl_dx9.h
 imgui/imgui_internal.h
@@ -14,18 +15,27 @@ imgui/stb_textedit.h
 imgui/stb_truetype.h
 )
 
-set(trackManagerFiles
-dllmain.cpp
-dllmain.h
+set(entryPointFiles
+entry/dllmain.cpp
+entry/dllmain.h
+)
+
+set(reflexFiles
+reflex/OverlayKernel.h
+reflex/OverlayKernel.cpp
+reflex/TrackSelection.h
+reflex/TrackSelection.cpp
 )
 
 set(grpcFiles
-grpc/testclient.h
-grpc/testclient.cpp
+grpc/TrackManagementClient.h
+grpc/TrackManagementClient.cpp
 )
 
-set(SOURCE_FILES ${imguiFiles} ${trackManagerFiles} ${grpcFiles})
+set(SOURCE_FILES ${imguiFiles} ${entryPointFiles} ${grpcFiles} ${reflexFiles})
 
+SOURCE_GROUP(entry FILES ${entryPointFiles})
 SOURCE_GROUP(grpc FILES ${grpcFiles})
 SOURCE_GROUP(imgui FILES ${imguiFiles})
-SOURCE_GROUP(TrackManager FILES ${trackManagerFiles})
+SOURCE_GROUP(reflex FILES ${reflexFiles})
+

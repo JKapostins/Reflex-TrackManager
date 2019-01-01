@@ -6,8 +6,7 @@
 
 #include <Indicium/Engine/IndiciumCore.h>
 #include <Indicium/Engine/IndiciumDirect3D9.h>
-#include <Indicium/Engine/IndiciumDirect3D10.h>
-#include <Indicium/Engine/IndiciumDirect3D11.h>
+
 
 typedef LRESULT(WINAPI *t_WindowProc)(
 	_In_ HWND hWnd,
