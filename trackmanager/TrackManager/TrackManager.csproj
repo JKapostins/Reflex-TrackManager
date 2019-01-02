@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.6.0-preview.18571.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Proto\Proto.csproj" />
     <ProjectReference Include="..\Reflex-Utility\ReflexUtility.csproj" />
   </ItemGroup>
