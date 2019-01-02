@@ -88,6 +88,7 @@ void EvtIndiciumGameHooked(const INDICIUM_D3D_VERSION GameVersion)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.MouseDrawCursor = true;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 
 	// Setup style
