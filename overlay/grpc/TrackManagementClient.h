@@ -7,8 +7,9 @@ class TrackManagementClient
 {
  public:
 	 TrackManagementClient(std::shared_ptr<grpc::Channel> channel);
+	 ~TrackManagementClient();
 	 std::vector<trackmanagement::Track> GetTracks();
 
  private:
-  std::unique_ptr<trackmanagement::TrackManager::Stub> m_stub;
+  trackmanagement::TrackManager::Stub* m_stub;
 };

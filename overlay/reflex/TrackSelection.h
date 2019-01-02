@@ -8,6 +8,7 @@ class TrackSelection
 {
 public:
 	TrackSelection(std::shared_ptr<TrackManagementClient> client);
+	~TrackSelection();
 	void render();
 
 private:

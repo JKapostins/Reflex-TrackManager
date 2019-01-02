@@ -1,8 +1,14 @@
 #include "TrackManagementClient.h"
 
 TrackManagementClient::TrackManagementClient(std::shared_ptr<grpc::Channel> channel)
-	: m_stub(trackmanagement::TrackManager::NewStub(channel))
+	: m_stub(new trackmanagement::TrackManager::Stub(channel))
 {
+}
+TrackManagementClient::~TrackManagementClient()
+{
+	//Note: Leaking on purpose here because attempting to delete grpc generated object causes hang.
+	//This code only gets called when reflex is closed so the OS will clean it up.
+	//delete m_stub;
 }
 
 std::vector<trackmanagement::Track> TrackManagementClient::GetTracks()

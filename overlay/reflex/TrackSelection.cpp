@@ -8,6 +8,10 @@ TrackSelection::TrackSelection(std::shared_ptr<TrackManagementClient> client)
 {
 }
 
+TrackSelection::~TrackSelection()
+{
+}
+
 void TrackSelection::render()
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
