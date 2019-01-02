@@ -6,6 +6,8 @@ TrackManagementClient::TrackManagementClient(std::shared_ptr<grpc::Channel> chan
 }
 TrackManagementClient::~TrackManagementClient()
 {
+	//GNARLY_TODO: Send disconnect message to the server.
+
 	//Note: Leaking on purpose here because attempting to delete grpc generated object causes hang.
 	//This code only gets called when reflex is closed so the OS will clean it up.
 	//delete m_stub;
