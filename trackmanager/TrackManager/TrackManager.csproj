@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <OutputType>Exe</OutputType>
+	<RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
+	<ApplicationManifest>app1.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

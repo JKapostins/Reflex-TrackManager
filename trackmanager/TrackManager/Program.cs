@@ -13,7 +13,8 @@ namespace TrackManager
             try
             {
                 Reflex reflex = new Reflex();
-                Console.WriteLine("Detected Mx vs Atv Reflex install path: " + Reflex.InstallLocation);
+                reflex.ValidateInstallation();
+                
                 var tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
 
                 var managementService = new TrackManagementService(tracks);
@@ -35,7 +36,19 @@ namespace TrackManager
             }
             catch(Exception e)
             {
-                Console.Error.WriteLine(e.Message);
+                LogExceptions(e);
+            }
+
+            Console.WriteLine("Press any key to close this window.");
+            Console.ReadKey();
+        }
+
+        private static void LogExceptions(Exception e)
+        {
+            Console.Error.WriteLine(e.Message);
+            if(e.InnerException != null)
+            {
+                LogExceptions(e.InnerException);
             }
         }
     }

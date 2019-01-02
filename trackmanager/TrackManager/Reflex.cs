@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using TrackManager.Steam;
 
 namespace TrackManager
@@ -10,12 +11,75 @@ namespace TrackManager
     {
         public Reflex()
         {
-            InstallLocation = GetInstallLocation();
+            m_uiFiles = new string[]
+            {
+                  "MXTables_DLC008.dx9.database"
+                , "MXTables_DLC008.dx9.package"
+                , "MXTables_DLC008a.dx9.database"
+                , "MXTables_DLC008a.dx9.package"
+                , "MXUI_DLC008.dx9.database"
+                , "MXUI_DLC008.dx9.package"
+            };
         }
 
-        public static string InstallLocation { get; private set; }
+        public void ValidateInstallation()
+        {
+            InstallPath = GetInstallPath(); 
+            DatabasePath = InstallPath + @"\Database";
+            Console.WriteLine("Detected Mx vs Atv Reflex install path: " + InstallPath);
 
-        private string GetInstallLocation()
+            if (BetaSlotsInstalled() == false)
+            {
+                Console.WriteLine("Installing beta slots...");
+                InstallBetaSlots();
+                Console.WriteLine("Beta slots install complete.");
+            }
+            else
+            {
+                Console.WriteLine("Beta slots already installed.");
+            }
+            
+        }
+
+        public static string InstallPath { get; private set; } = string.Empty;
+        public static string DatabasePath { get; private set; } = string.Empty;
+
+        #region BetaSlots
+        private bool BetaSlotsInstalled()
+        {
+            if (File.Exists(string.Format(@"{0}\{1}", InstallPath, "MX07Leaderboards.bxml")) == false)
+            {
+                return false;
+            }
+
+            foreach(var uiFile in m_uiFiles)
+            {
+                if (File.Exists(string.Format(@"{0}\Database\{1}", InstallPath, uiFile)) == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void InstallBetaSlots()
+        {
+            string betaSlotUrl = "https://s3.amazonaws.com/reflextracks/BetaSlots";
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile(string.Format("{0}/{1}", betaSlotUrl, "MX07Leaderboards.bxml"), string.Format(@"{0}\{1}", InstallPath, "MX07Leaderboards.bxml"));
+
+                foreach (var uiFile in m_uiFiles)
+                {
+                    client.DownloadFile(string.Format("{0}/{1}", betaSlotUrl, uiFile), string.Format(@"{0}\{1}", DatabasePath, uiFile));
+                }
+            }
+        }
+        #endregion
+
+
+        #region InstallPath
+        private string GetInstallPath()
         {
             string installPath = string.Empty;
             var steamInstallPath = GetSteamInstallPath(@"SOFTWARE\Valve\Steam");
@@ -122,7 +186,9 @@ namespace TrackManager
 
             return installPath;
         }
+        #endregion
 
         private const string ReflexNameInSteam = "MX vs. ATV Reflex";
+        private readonly string[] m_uiFiles;
     }
 }
