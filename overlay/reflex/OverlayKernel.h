@@ -1,5 +1,5 @@
 #pragma once
-
+#include <d3d9.h>
 #include <string>
 
 class TrackSelection;
@@ -10,7 +10,7 @@ class OverlayKernel
 public:
 	OverlayKernel();
 	~OverlayKernel();
-	void render();
+	void render(LPDIRECT3DDEVICE9 device);
 
 private:
 	//GRPC client

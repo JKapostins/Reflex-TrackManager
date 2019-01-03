@@ -55,10 +55,15 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
 SOURCE_GROUP(grpc\\generated FILES ${proto_srcs} ${grpc_srcs} ${proto_hdrs} ${grpc_hdrs})
 
+find_package(JPEG REQUIRED)
+
+    
+
 add_library (${projectName} SHARED ${SOURCE_FILES} ${proto_srcs} ${grpc_srcs} ${proto_hdrs} ${grpc_hdrs})
 
 target_include_directories(${projectName} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/Indicium-Supra/include")
 target_include_directories(${projectName} PRIVATE "../third-party/minhook/include")
+target_include_directories(${projectName} PRIVATE ${JPEG_INCLUDE_DIR})
 include_external_msproject(libMinHook "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/minhook/build/VC15/libMinHook.vcxproj" PLATFORM Win32)
 include_external_msproject(Indicium-Supra "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/Indicium-Supra/src/Indicium-Supra.vcxproj" PLATFORM Win32)
 
@@ -68,5 +73,9 @@ target_link_libraries(${projectName} optimized ${CMAKE_BINARY_DIR}/libMinHook/Re
 target_link_libraries(${projectName} debug ${CMAKE_BINARY_DIR}/Indicium-Supra/Debug/x86/Indicium-Supra.lib)
 target_link_libraries(${projectName} optimized ${CMAKE_BINARY_DIR}/libMinHook/Release/libMinHook.x86.lib)
 target_link_libraries(${projectName} ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF} )
+
+target_link_libraries(${projectName} ${JPEG_LIBRARIES})
+target_link_libraries(${projectName} debug ${CMAKE_BINARY_DIR}/third-party/vcpkg/installed/x86-windows/debug/lib/turbojpeg.lib)
+target_link_libraries(${projectName} optimized ${CMAKE_BINARY_DIR}/third-party/vcpkg/installed/x86-windows/lib/turbojpeg.lib)
 
 add_dependencies(${projectName} libMinHook Indicium-Supra)

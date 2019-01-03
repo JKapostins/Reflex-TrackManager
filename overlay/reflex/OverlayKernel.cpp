@@ -13,7 +13,7 @@ OverlayKernel::~OverlayKernel()
 {
 }
 
-void OverlayKernel::render()
+void OverlayKernel::render(LPDIRECT3DDEVICE9 device)
 {
-	m_trackSelection->render();
+	m_trackSelection->render(device);
 }

@@ -153,7 +153,7 @@ void EvtIndiciumD3D9PreEndScene(
 		return;
 
 	ImGui_ImplDX9_NewFrame();
-	RenderScene();
+	RenderScene(pDevice);
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
 
@@ -218,7 +218,7 @@ void EvtIndiciumD3D9PresentEx(
 		return;
 
 	ImGui_ImplDX9_NewFrame();
-	RenderScene();
+	RenderScene(pDevice);
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
 
@@ -322,11 +322,11 @@ LRESULT WINAPI DetourWindowProc(
 
 #pragma region Main content rendering
 
-void RenderScene()
+void RenderScene(LPDIRECT3DDEVICE9 device)
 {
 	if (reflexOverlay != nullptr)
 	{
-		reflexOverlay->render();
+		reflexOverlay->render(device);
 	}
 	ImGui::Render();
 }

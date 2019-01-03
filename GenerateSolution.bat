@@ -14,6 +14,7 @@ call %buildRoot%\third-party\vcpkg\bootstrap-vcpkg.bat
 )
 
 call %vcpkgExe% install grpc:x86-windows
+call %vcpkgExe% install libjpeg-turbo:x86-windows
 
 rem call %buildRoot%\
 

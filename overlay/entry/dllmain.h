@@ -30,7 +30,7 @@ LRESULT WINAPI DetourWindowProc(
 );
 
 void HookWindowProc(HWND hWnd);
-void RenderScene();
+void RenderScene(LPDIRECT3DDEVICE9 device);
 
 bool ImGui_ImplWin32_UpdateMouseCursor();
 IMGUI_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

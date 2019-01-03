@@ -38,6 +38,7 @@ void main(int argc, char *argv[])
 			, currentDirectory + "cares.dll"
 			, currentDirectory + "libprotobuf.dll"
 			, currentDirectory + "zlib.dll"
+			, currentDirectory + "turbojpeg.dll"
 			, currentDirectory + "TrackManager-Overlay.dll"
 		};
 #else
@@ -49,6 +50,7 @@ void main(int argc, char *argv[])
 			, buildFolder + "/overlay/Debug/cares.dll"
 			, buildFolder + "/overlay/Debug/libprotobufd.dll"
 			, buildFolder + "/overlay/Debug/zlibd1.dll"
+			, buildFolder + "/overlay/Debug/turbojpeg.dll"
 			, buildFolder + "/overlay/Debug/TrackManager-Overlay.dll"
 		};
 #endif
@@ -64,7 +66,21 @@ void main(int argc, char *argv[])
 			Injector::Get()->InjectLib(ProcID, module);
 			// If we get to this point then no exceptions have been thrown so we
 			// assume success.
-			std::cout << "Successfully injected module!" << std::endl;
+			std::string fileName = "module";
+
+			auto fileNameIndex = module.find_last_of('/');
+			if (fileNameIndex != std::string::npos)
+			{
+				fileName = module.substr(fileNameIndex + 1, module.size());
+			}
+
+			fileNameIndex = module.find_last_of('\\');
+			if (fileNameIndex != std::string::npos)
+			{
+				fileName = module.substr(fileNameIndex + 1, module.size());
+			}
+
+			std::cout << "Successfully injected " << fileName << std::endl;
 		}
 	}
 	// Catch STL-based exceptions.
