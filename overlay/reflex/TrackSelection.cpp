@@ -25,15 +25,23 @@ TrackSelection::~TrackSelection()
 
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
-	ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Track Selection"))
+	static float windowHeight = 900;
+	static float windowWidth = 960;
+	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_Always);
+
+	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize))
 	{
 		auto tracks = m_trackManagementClient->GetTracks();
 
 		static const float contentWidth = 900.0f;
 		static const float height = 30.0f;
 
-		ImGui::BeginChild("preview image", ImVec2(640, 370));
+		ImVec2 windowSize = ImGui::GetWindowSize();
+		static int imagePreviewWindowWidth = 656;
+		static int imagePreviewWindowHeight = 376;
+
+		ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
+		ImGui::BeginChild("preview image", ImVec2(imagePreviewWindowWidth, imagePreviewWindowHeight), true);
 		drawPreviewImage(device, m_selectedTrack);
 		ImGui::EndChild();
 
