@@ -1,16 +1,16 @@
 #include "TrackSelection.h"
 #include <turbojpeg.h>
 #include <fstream>
-#include "grpc/TrackManagementClient.h"
 #include "imgui/imgui.h"
 
 TrackSelection::TrackSelection(std::shared_ptr<TrackManagementClient> client)
 	: m_trackManagementClient(client)
-	, m_selectedTrack("")
-	, m_previouslySelectedTrack("")
+	, m_selectedTrackName("")
+	, m_previouslySelectedTrackName("")
 	, m_previewImage(nullptr)
 	, m_previeImageWidth(0)
 	, m_previewImageHeight(0)
+	, m_loadNewImage(false)
 {
 }
 
@@ -32,6 +32,10 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 
 		static const float contentWidth = 900.0f;
 		static const float height = 30.0f;
+
+		ImGui::BeginChild("preview image", ImVec2(640, 370));
+		drawPreviewImage(device, m_selectedTrack);
+		ImGui::EndChild();
 
 		ImGui::SetNextWindowContentSize(ImVec2(contentWidth, 0.0f));
 		ImGui::BeginChild("##ScrollingRegion", ImVec2(0, ImGui::GetFontSize() * height), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -66,9 +70,9 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 
 		for (auto& track : tracks)
 		{
-			if (ImGui::Selectable(track.name().c_str(), m_selectedTrack == track.name(), ImGuiSelectableFlags_SpanAllColumns))
+			if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
 			{
-				m_selectedTrack = track.name();
+				m_selectedTrackName = track.name();
 			}
 			bool hovered = ImGui::IsItemHovered();
 			ImGui::NextColumn();
@@ -84,34 +88,34 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		ImGui::Columns(1);
 		ImGui::Separator();
 		
-		std::string selected = m_selectedTrack;
+		std::string selected = m_selectedTrackName;
 		auto trackIter = std::find_if(tracks.begin(), tracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
 		if (trackIter != tracks.end())
 		{
-			//ImGui::SameLine();
-			ImGui::BeginChild("preview image", ImVec2(640, 0));
-			drawPreviewImage(device, *trackIter);
-			ImGui::EndChild();
+			m_selectedTrack = *trackIter;
+			if (m_previouslySelectedTrackName != m_selectedTrackName)
+			{
+				m_loadNewImage = true;
+			}
 		}
 
 	}
 	ImGui::End();
 
-	m_previouslySelectedTrack = m_selectedTrack;
+	m_previouslySelectedTrackName = m_selectedTrackName;
 }
 
 void TrackSelection::drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanagement::Track& selected)
 {
-	if (m_previouslySelectedTrack != m_selectedTrack)
+	if (m_loadNewImage)
 	{
 		if (m_previewImage != nullptr)
 		{
 			m_previewImage->Release();
 			m_previewImage = nullptr;
 		}
-
-		
 		m_previewImage = createTextureFromFile(device, selected.image().c_str());
+		m_loadNewImage = false;
 	}
 
 
