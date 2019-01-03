@@ -5,10 +5,13 @@ package trackmanagement;
 // The greeting service definition.
 service TrackManager {
   // Sends a greeting
-  rpc GetTracks (Empty) returns (TrackResponse) {}
+  rpc GetTracks (TrackRequest) returns (TrackResponse) {}
 }
 
-message Empty {
+message TrackRequest {
+	string trackType = 1;
+	string slot = 2;
+	string sortBy = 3;
 }
 
 // The response message containing the greetings

@@ -13,9 +13,8 @@ TrackManagementClient::~TrackManagementClient()
 	//delete m_stub;
 }
 
-std::vector<trackmanagement::Track> TrackManagementClient::GetTracks()
+std::vector<trackmanagement::Track> TrackManagementClient::GetTracks(const trackmanagement::TrackRequest& request)
 {
-	trackmanagement::Empty request;
 	trackmanagement::TrackResponse reply;
 	grpc::ClientContext context;
 	std::vector<trackmanagement::Track> tracks;

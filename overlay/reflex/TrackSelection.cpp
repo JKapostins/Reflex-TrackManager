@@ -7,7 +7,7 @@
 const char* g_trackTypeComboItems[] =
 {
 	  "All Track Types"
-	, "Nationals"
+	, "National"
 	, "Supercross"
 	, "FreeRide"
 };
@@ -43,6 +43,9 @@ TrackSelection::TrackSelection(std::shared_ptr<TrackManagementClient> client)
 	, m_previewImage(nullptr)
 	, m_previeImageWidth(0)
 	, m_previewImageHeight(0)
+	, m_trackTypeFilterIndex(0)
+	, m_slotFilterIndex(0)
+	, m_sortByIndex(1) // sort by slot by default
 	, m_loadNewImage(false)
 {
 }
@@ -64,7 +67,11 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 
 	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize))
 	{
-		auto tracks = m_trackManagementClient->GetTracks();
+		trackmanagement::TrackRequest request;
+		request.set_tracktype(g_trackTypeComboItems[m_trackTypeFilterIndex]);
+		request.set_slot(g_slotComboItems[m_slotFilterIndex]);
+		request.set_sortby(g_sortByComboItems[m_sortByIndex]);
+		auto tracks = m_trackManagementClient->GetTracks(request);
 
 		static const float contentWidth = 900.0f;
 		static const float height = 30.0f;
@@ -81,14 +88,12 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		static float filtersHeight = 75;
 		ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
 		ImGui::BeginChild("filters", ImVec2(imagePreviewWindowWidth, filtersHeight));
-		static int trackTypeIndex = 0;
-		ImGui::Combo("Track Type Filter", &trackTypeIndex, g_trackTypeComboItems, IM_ARRAYSIZE(g_trackTypeComboItems));
 
-		static int slotFilterIndex = 0;
-		ImGui::Combo("Slot Filter", &slotFilterIndex, g_slotComboItems, IM_ARRAYSIZE(g_slotComboItems));
+		ImGui::Combo("Track Type Filter", &m_trackTypeFilterIndex, g_trackTypeComboItems, IM_ARRAYSIZE(g_trackTypeComboItems));
 
-		static int sortByIndex = 0;
-		ImGui::Combo("Sort By", &sortByIndex, g_sortByComboItems, IM_ARRAYSIZE(g_sortByComboItems));
+		ImGui::Combo("Slot Filter", &m_slotFilterIndex, g_slotComboItems, IM_ARRAYSIZE(g_slotComboItems));
+
+		ImGui::Combo("Sort By", &m_sortByIndex, g_sortByComboItems, IM_ARRAYSIZE(g_sortByComboItems));
 		ImGui::EndChild();
 
 		ImGui::SetNextWindowContentSize(ImVec2(contentWidth, 0.0f));

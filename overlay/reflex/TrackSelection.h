@@ -20,6 +20,9 @@ private:
 	bool m_loadNewImage;
 	int m_previeImageWidth;
 	int m_previewImageHeight;
+	int m_trackTypeFilterIndex;
+	int m_slotFilterIndex;
+	int m_sortByIndex;
 	trackmanagement::Track m_selectedTrack;
 	LPDIRECT3DTEXTURE9 m_previewImage;
 	std::string m_selectedTrackName;
