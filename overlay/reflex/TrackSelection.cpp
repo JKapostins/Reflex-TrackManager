@@ -3,6 +3,39 @@
 #include <fstream>
 #include "imgui/imgui.h"
 
+
+const char* g_trackTypeComboItems[] =
+{
+	  "All Track Types"
+	, "Nationals"
+	, "Supercross"
+	, "FreeRide"
+};
+
+const char* g_slotComboItems[] =
+{
+	  "All Slots"
+	, "1"
+	, "2"
+	, "3"
+	, "4"
+	, "5"
+	, "6"
+	, "7"
+	, "8"
+};
+
+const char* g_sortByComboItems[] =
+{
+	  "Name"
+	, "Slot"
+	, "Type"
+	, "Author"
+	, "Date Created"
+	, "Downloads"
+	, "Favorite"
+};
+
 TrackSelection::TrackSelection(std::shared_ptr<TrackManagementClient> client)
 	: m_trackManagementClient(client)
 	, m_selectedTrackName("")
@@ -25,7 +58,7 @@ TrackSelection::~TrackSelection()
 
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
-	static float windowHeight = 900;
+	static float windowHeight = 950;
 	static float windowWidth = 960;
 	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_Always);
 
@@ -45,11 +78,20 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		drawPreviewImage(device, m_selectedTrack);
 		ImGui::EndChild();
 
+		static float filtersHeight = 75;
+		ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
+		ImGui::BeginChild("filters", ImVec2(imagePreviewWindowWidth, filtersHeight));
+		static int trackTypeIndex = 0;
+		ImGui::Combo("Track Type Filter", &trackTypeIndex, g_trackTypeComboItems, IM_ARRAYSIZE(g_trackTypeComboItems));
+
+		static int slotFilterIndex = 0;
+		ImGui::Combo("Slot Filter", &slotFilterIndex, g_slotComboItems, IM_ARRAYSIZE(g_slotComboItems));
+
+		static int sortByIndex = 0;
+		ImGui::Combo("Sort By", &sortByIndex, g_sortByComboItems, IM_ARRAYSIZE(g_sortByComboItems));
+		ImGui::EndChild();
+
 		ImGui::SetNextWindowContentSize(ImVec2(contentWidth, 0.0f));
-		ImGui::BeginChild("##ScrollingRegion", ImVec2(0, ImGui::GetFontSize() * height), false, ImGuiWindowFlags_HorizontalScrollbar);
-
-		ImGui::Columns(7, "availabletracks"); // 4-ways, with border
-
 		static const float nameWidth = 350.0f;
 		static const float slotWidth = 54.0f;
 		static const float typeWidth = 100.0f;
@@ -58,6 +100,10 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		static const float downloadsWidth = 84.0f;
 		static const float favoriteWidth = 84.0f;
 
+		static float headerHeight = 25;
+		ImGui::BeginChild("header", ImVec2(0, headerHeight));
+		ImGui::Columns(7, "tracksHeader", true); // 4-ways, with border
+		ImGui::Separator();
 		ImGui::SetColumnWidth(0, nameWidth);
 		ImGui::SetColumnWidth(1, slotWidth);
 		ImGui::SetColumnWidth(2, typeWidth);
@@ -66,7 +112,6 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		ImGui::SetColumnWidth(5, downloadsWidth);
 		ImGui::SetColumnWidth(6, favoriteWidth);
 
-		ImGui::Separator();
 		ImGui::Text("Name"); ImGui::NextColumn();
 		ImGui::Text("Slot"); ImGui::NextColumn();
 		ImGui::Text("Type"); ImGui::NextColumn();
@@ -75,7 +120,18 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		ImGui::Text("Downloads"); ImGui::NextColumn();
 		ImGui::Text("Favorite"); ImGui::NextColumn();
 		ImGui::Separator();
+		ImGui::EndChild();
 
+		ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height));
+		ImGui::Columns(7, "availabletracks");
+
+		ImGui::SetColumnWidth(0, nameWidth);
+		ImGui::SetColumnWidth(1, slotWidth);
+		ImGui::SetColumnWidth(2, typeWidth);
+		ImGui::SetColumnWidth(3, authorWidth);
+		ImGui::SetColumnWidth(4, dateWidth);
+		ImGui::SetColumnWidth(5, downloadsWidth);
+		ImGui::SetColumnWidth(6, favoriteWidth);
 		for (auto& track : tracks)
 		{
 			if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
