@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using TrackManagement;
 using TrackManager.Steam;
+using System.Linq;
 
 namespace TrackManager
 {
@@ -11,6 +13,7 @@ namespace TrackManager
     {
         public Reflex()
         {
+            Tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
             m_uiFiles = new string[]
             {
                   "MXTables_DLC008.dx9.database"
@@ -24,8 +27,21 @@ namespace TrackManager
 
         public void ValidateInstallation()
         {
-            InstallPath = GetInstallPath(); 
+            InstallPath = GetInstallPath();
             DatabasePath = InstallPath + @"\Database";
+            LocalImagePath = Environment.CurrentDirectory + @"\Images";
+            LocalTrackPath = Environment.CurrentDirectory + @"\Tracks";
+
+            if(Directory.Exists(LocalImagePath) == false)
+            {
+                Directory.CreateDirectory(LocalImagePath);
+            }
+
+            if (Directory.Exists(LocalTrackPath) == false)
+            {
+                Directory.CreateDirectory(LocalTrackPath);
+            }
+
             Console.WriteLine("Detected Mx vs Atv Reflex install path: " + InstallPath);
 
             if (BetaSlotsInstalled() == false)
@@ -38,11 +54,43 @@ namespace TrackManager
             {
                 Console.WriteLine("Beta slots already installed.");
             }
-            
+        }
+
+        public void DownloadImages()
+        {
+            var serverTracks = Tracks.Select(t => t.TrackName.Trim()).ToArray();
+            var localImages = GetImageFilesOnDisk();
+            var newImages = serverTracks.Except(localImages).ToArray();
+
+            if(newImages.Length > 0)
+            {
+                Console.WriteLine(string.Format("Preparing to download {0} new preview images...", newImages.Length));
+            }
+
+            foreach(var image in newImages)
+            {
+                Console.WriteLine(string.Format("Downloading preview image \"{0}\"", image));
+                TrackInstaller.DownloadImage(image);
+            }
+
+            if (newImages.Length > 0)
+            {
+                Console.WriteLine("Preview image downloads complete.");
+            }
+        }
+
+        public string[] GetImageFilesOnDisk()
+        {
+            var files = Directory.GetFiles(LocalImagePath);
+            return files.Select(t => Path.GetFileNameWithoutExtension(t.Trim())).ToArray();
         }
 
         public static string InstallPath { get; private set; } = string.Empty;
         public static string DatabasePath { get; private set; } = string.Empty;
+        public static string LocalImagePath { get; private set; } = string.Empty;
+        public static string LocalTrackPath { get; private set; } = string.Empty;
+
+        public static Track[] Tracks { get; private set; } = null;
 
         #region BetaSlots
         private bool BetaSlotsInstalled()

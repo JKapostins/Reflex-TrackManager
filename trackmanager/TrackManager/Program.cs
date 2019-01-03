@@ -14,10 +14,8 @@ namespace TrackManager
             {
                 Reflex reflex = new Reflex();
                 reflex.ValidateInstallation();
-                
-                var tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
-
-                var managementService = new TrackManagementService(tracks);
+                reflex.DownloadImages();
+                var managementService = new TrackManagementService(Reflex.Tracks);
                 Server server = new Server
                 {
                     Services = { Trackmanagement.TrackManager.BindService(managementService) },
@@ -36,20 +34,13 @@ namespace TrackManager
             }
             catch(Exception e)
             {
-                LogExceptions(e);
+                ExceptionLogger.LogException(e);
             }
 
             Console.WriteLine("Press any key to close this window.");
             Console.ReadKey();
         }
 
-        private static void LogExceptions(Exception e)
-        {
-            Console.Error.WriteLine(e.Message);
-            if(e.InnerException != null)
-            {
-                LogExceptions(e.InnerException);
-            }
-        }
+        
     }
 }

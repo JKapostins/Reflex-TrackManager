@@ -28,7 +28,7 @@ namespace TrackManager
                 {
                     Name = t.TrackName,
                     Type = t.TrackType,
-                    Image = string.Format("{0}\\Images\\{1}", currentDirectory, Path.GetFileName(t.ThumbnailUrl).Replace("+", " ")),
+                    Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)),
                     Author = t.Author,
                     Slot = t.SlotNumber,
                     Date = UnixTimeStampToString(t.CreationTime),
