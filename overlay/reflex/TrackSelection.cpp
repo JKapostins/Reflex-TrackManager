@@ -73,89 +73,10 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		request.set_sortby(g_sortByComboItems[m_sortByIndex]);
 		auto tracks = m_trackManagementClient->GetTracks(request);
 
-		static const float contentWidth = 900.0f;
-		static const float height = 30.0f;
-
-		ImVec2 windowSize = ImGui::GetWindowSize();
-		static int imagePreviewWindowWidth = 656;
-		static int imagePreviewWindowHeight = 376;
-
-		ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
-		ImGui::BeginChild("preview image", ImVec2(imagePreviewWindowWidth, imagePreviewWindowHeight), true);
 		drawPreviewImage(device, m_selectedTrack);
-		ImGui::EndChild();
-
-		static float filtersHeight = 75;
-		ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
-		ImGui::BeginChild("filters", ImVec2(imagePreviewWindowWidth, filtersHeight));
-
-		ImGui::Combo("Track Type Filter", &m_trackTypeFilterIndex, g_trackTypeComboItems, IM_ARRAYSIZE(g_trackTypeComboItems));
-
-		ImGui::Combo("Slot Filter", &m_slotFilterIndex, g_slotComboItems, IM_ARRAYSIZE(g_slotComboItems));
-
-		ImGui::Combo("Sort By", &m_sortByIndex, g_sortByComboItems, IM_ARRAYSIZE(g_sortByComboItems));
-		ImGui::EndChild();
-
-		ImGui::SetNextWindowContentSize(ImVec2(contentWidth, 0.0f));
-		static const float nameWidth = 350.0f;
-		static const float slotWidth = 54.0f;
-		static const float typeWidth = 100.0f;
-		static const float authorWidth = 128.0f;
-		static const float dateWidth = 128.0f;
-		static const float downloadsWidth = 84.0f;
-		static const float favoriteWidth = 84.0f;
-
-		static float headerHeight = 25;
-		ImGui::BeginChild("header", ImVec2(0, headerHeight));
-		ImGui::Columns(7, "tracksHeader", true); // 4-ways, with border
-		ImGui::Separator();
-		ImGui::SetColumnWidth(0, nameWidth);
-		ImGui::SetColumnWidth(1, slotWidth);
-		ImGui::SetColumnWidth(2, typeWidth);
-		ImGui::SetColumnWidth(3, authorWidth);
-		ImGui::SetColumnWidth(4, dateWidth);
-		ImGui::SetColumnWidth(5, downloadsWidth);
-		ImGui::SetColumnWidth(6, favoriteWidth);
-
-		ImGui::Text("Name"); ImGui::NextColumn();
-		ImGui::Text("Slot"); ImGui::NextColumn();
-		ImGui::Text("Type"); ImGui::NextColumn();
-		ImGui::Text("Author"); ImGui::NextColumn();
-		ImGui::Text("Date Created"); ImGui::NextColumn();
-		ImGui::Text("Downloads"); ImGui::NextColumn();
-		ImGui::Text("Favorite"); ImGui::NextColumn();
-		ImGui::Separator();
-		ImGui::EndChild();
-
-		ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height));
-		ImGui::Columns(7, "availabletracks");
-
-		ImGui::SetColumnWidth(0, nameWidth);
-		ImGui::SetColumnWidth(1, slotWidth);
-		ImGui::SetColumnWidth(2, typeWidth);
-		ImGui::SetColumnWidth(3, authorWidth);
-		ImGui::SetColumnWidth(4, dateWidth);
-		ImGui::SetColumnWidth(5, downloadsWidth);
-		ImGui::SetColumnWidth(6, favoriteWidth);
-		for (auto& track : tracks)
-		{
-			if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
-			{
-				m_selectedTrackName = track.name();
-			}
-			bool hovered = ImGui::IsItemHovered();
-			ImGui::NextColumn();
-
-			ImGui::Text("%d", track.slot()); ImGui::NextColumn();
-			ImGui::Text(track.type().c_str()); ImGui::NextColumn();
-			ImGui::Text(track.author().c_str()); ImGui::NextColumn();
-			ImGui::Text(track.date().c_str()); ImGui::NextColumn();
-			ImGui::Text("%d", track.downloads()); ImGui::NextColumn();
-			ImGui::Text("<3"); ImGui::NextColumn();
-		}
-		ImGui::EndChild();
-		ImGui::Columns(1);
-		ImGui::Separator();
+		drawComboBoxes();
+		drawTableHeader();
+		drawTableBody(tracks);
 		
 		std::string selected = m_selectedTrackName;
 		auto trackIter = std::find_if(tracks.begin(), tracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
@@ -187,12 +108,102 @@ void TrackSelection::drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanag
 		m_loadNewImage = false;
 	}
 
+	ImVec2 windowSize = ImGui::GetWindowSize();
+	static int imagePreviewWindowWidth = 656;
+	static int imagePreviewWindowHeight = 376;
 
+	ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
+	ImGui::BeginChild("preview image", ImVec2(imagePreviewWindowWidth, imagePreviewWindowHeight), true);
 	if (m_previewImage != nullptr)
 	{
 		ImGui::Image(m_previewImage, ImVec2(m_previeImageWidth, m_previewImageHeight));
 	}
+	ImGui::EndChild();
 
+}
+
+void TrackSelection::drawComboBoxes()
+{
+	ImVec2 windowSize = ImGui::GetWindowSize();
+	static int filtersWidth = 656;
+	static float filtersHeight = 75;
+	ImGui::SetCursorPosX((windowSize.x / 2) - (filtersWidth / 2));
+	ImGui::BeginChild("filters", ImVec2(filtersWidth, filtersHeight));
+
+	ImGui::Combo("Track Type Filter", &m_trackTypeFilterIndex, g_trackTypeComboItems, IM_ARRAYSIZE(g_trackTypeComboItems));
+
+	ImGui::Combo("Slot Filter", &m_slotFilterIndex, g_slotComboItems, IM_ARRAYSIZE(g_slotComboItems));
+
+	ImGui::Combo("Sort By", &m_sortByIndex, g_sortByComboItems, IM_ARRAYSIZE(g_sortByComboItems));
+	ImGui::EndChild();
+}
+
+void TrackSelection::drawTableHeader()
+{
+	static float headerHeight = 25;
+	ImGui::BeginChild("header", ImVec2(0, headerHeight));
+	ImGui::Columns(7, "tracksHeader", true); // 4-ways, with border
+	ImGui::Separator();
+	
+	setTableColumnWidth();
+
+	ImGui::Text("Name"); ImGui::NextColumn();
+	ImGui::Text("Slot"); ImGui::NextColumn();
+	ImGui::Text("Type"); ImGui::NextColumn();
+	ImGui::Text("Author"); ImGui::NextColumn();
+	ImGui::Text("Date Created"); ImGui::NextColumn();
+	ImGui::Text("Downloads"); ImGui::NextColumn();
+	ImGui::Text("Favorite"); ImGui::NextColumn();
+	ImGui::Separator();
+	ImGui::EndChild();
+}
+
+void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tracks)
+{
+	static const float height = 30.0f;
+	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height));
+	ImGui::Columns(7, "availabletracks");
+
+	setTableColumnWidth();
+
+	for (auto& track : tracks)
+	{
+		if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
+		{
+			m_selectedTrackName = track.name();
+		}
+		bool hovered = ImGui::IsItemHovered();
+		ImGui::NextColumn();
+
+		ImGui::Text("%d", track.slot()); ImGui::NextColumn();
+		ImGui::Text(track.type().c_str()); ImGui::NextColumn();
+		ImGui::Text(track.author().c_str()); ImGui::NextColumn();
+		ImGui::Text(track.date().c_str()); ImGui::NextColumn();
+		ImGui::Text("%d", track.downloads()); ImGui::NextColumn();
+		ImGui::Text("<3"); ImGui::NextColumn();
+	}
+	ImGui::EndChild();
+	ImGui::Columns(1);
+	ImGui::Separator();
+}
+
+void TrackSelection::setTableColumnWidth()
+{
+	static const float nameWidth = 350.0f;
+	static const float slotWidth = 54.0f;
+	static const float typeWidth = 100.0f;
+	static const float authorWidth = 128.0f;
+	static const float dateWidth = 128.0f;
+	static const float downloadsWidth = 84.0f;
+	static const float favoriteWidth = 84.0f;
+
+	ImGui::SetColumnWidth(0, nameWidth);
+	ImGui::SetColumnWidth(1, slotWidth);
+	ImGui::SetColumnWidth(2, typeWidth);
+	ImGui::SetColumnWidth(3, authorWidth);
+	ImGui::SetColumnWidth(4, dateWidth);
+	ImGui::SetColumnWidth(5, downloadsWidth);
+	ImGui::SetColumnWidth(6, favoriteWidth);
 }
 
 LPDIRECT3DTEXTURE9 TrackSelection::createTextureFromFile(LPDIRECT3DDEVICE9 device, const char* fileName)

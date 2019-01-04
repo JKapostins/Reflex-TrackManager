@@ -15,6 +15,10 @@ public:
 
 private:
 	void drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanagement::Track& selected);
+	void drawComboBoxes();
+	void drawTableHeader();
+	void drawTableBody(const std::vector<trackmanagement::Track>& tracks);
+	void setTableColumnWidth();
 	LPDIRECT3DTEXTURE9 createTextureFromFile(LPDIRECT3DDEVICE9 device, const char* fileName);
 
 	bool m_loadNewImage;
