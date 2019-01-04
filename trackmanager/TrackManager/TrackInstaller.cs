@@ -1,19 +1,84 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using System.Linq;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
+using System.Net;
+using TrackManagement;
 
 namespace TrackManager
 {
-    public class TrackInstaller
+    public static class TrackInstaller
     {
+        public static string InstallStatus { get; private set; } = string.Empty;
+        public static bool TrackInstallQueueEmpty
+        {
+            get
+            {
+                return m_trackQueue.IsEmpty;
+            }
+        }
+
         public static bool InstallTrack(string trackName)
         {
             bool success = false;
 
             return success;
+        }
+
+        public static void EnqueueRandomRandomTracks(string trackType)
+        {
+            try
+            {
+                if (TrackInstallQueueEmpty)
+                {
+                    Random rnd = new Random();
+                    for (int i = 0; i < Reflex.SlotCount; ++i)
+                    {
+                        int slot = i + 1;
+                        var randomTrack = Reflex.Tracks.Where(t => t.TrackType == trackType && t.SlotNumber == slot).Select(t => t.TrackName).OrderBy(item => rnd.Next()).FirstOrDefault();
+                        if (randomTrack != null)
+                        {
+                            AddTrackToInstallQueue(randomTrack);
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Please wait for the current install operation to complete before selecting random {0} tracks.", trackType));
+                }
+            }
+            catch(Exception e)
+            {
+                ExceptionLogger.LogException(e);
+            }
+        }
+        public static void AddTrackToInstallQueue(string trackName)
+        {
+            try
+            {
+                var track = Reflex.Tracks.Where(t => t.TrackName == trackName).SingleOrDefault();
+
+                if (track != null)
+                {
+                    if (m_trackQueue.Any(q => q.TrackType == track.TrackType && q.SlotNumber == track.SlotNumber) == false)
+                    {
+                        m_trackQueue.Enqueue(track);
+                        Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Added '{0}' ({1} Slot {2}) to the install queue.", track.TrackName, track.TrackType, track.SlotNumber));
+                    }
+                    else
+                    {
+                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("There is already a track being installed to '{0} Slot {1}'. Wait for the current install process to finish before installing '{2}'.", track.TrackType, track.SlotNumber, track.TrackName));
+                    }
+                }
+                else
+                {
+                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Unable to find '{0}'. Install operation cancelled.", trackName));
+                }
+            }
+            catch(Exception e)
+            {
+                ExceptionLogger.LogException(e);
+            }
         }
 
         private static string DownloadTrack(string trackName)
@@ -65,5 +130,7 @@ namespace TrackManager
 
             return success;
         }
+
+        private static ConcurrentQueue<Track> m_trackQueue = new ConcurrentQueue<Track>();
     }
 }

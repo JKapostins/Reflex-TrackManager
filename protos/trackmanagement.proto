@@ -2,10 +2,15 @@ syntax = "proto3";
 
 package trackmanagement;
 
-// The greeting service definition.
 service TrackManager {
-  // Sends a greeting
+
+  rpc GetLogMessages (Empty) returns (LogResponse) {}
   rpc GetTracks (TrackRequest) returns (TrackResponse) {}
+  rpc GetInstallStatus (Empty) returns (InstallStatusResponse) {}
+  rpc InstallRandomNationals (Empty) returns (Empty) {}
+  rpc InstallRandomSupercross (Empty) returns (Empty) {}
+  rpc InstallRandomFreeRides (Empty) returns (Empty) {}
+  rpc InstallSelectedTrack (InstallTrackRequest) returns (Empty) {}
 }
 
 message TrackRequest {
@@ -14,9 +19,35 @@ message TrackRequest {
 	string sortBy = 3;
 }
 
-// The response message containing the greetings
+
 message TrackResponse {
   repeated Track tracks = 1;
+}
+
+message InstallTrackRequest {
+	string trackName = 1;
+}
+
+message InstallStatusResponse {
+	string installStatus = 1;
+}
+
+message Empty {
+}
+
+message LogResponse {
+  repeated LogMessage messages = 1;
+}
+
+enum LogMessageType {
+	LOG_INFO = 0;
+	LOG_WARNING = 1;
+	LOG_ERROR = 2;
+}
+
+message LogMessage {
+	string message = 1;
+	LogMessageType type = 2;
 }
 
 message Track {

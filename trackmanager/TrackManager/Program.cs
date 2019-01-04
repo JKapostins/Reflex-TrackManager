@@ -15,7 +15,7 @@ namespace TrackManager
                 Reflex reflex = new Reflex();
                 reflex.ValidateInstallation();
                 reflex.DownloadImages();
-                var managementService = new TrackManagementService(Reflex.Tracks);
+                var managementService = new TrackManagementService();
                 Server server = new Server
                 {
                     Services = { Trackmanagement.TrackManager.BindService(managementService) },

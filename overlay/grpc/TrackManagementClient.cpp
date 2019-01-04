@@ -13,7 +13,7 @@ TrackManagementClient::~TrackManagementClient()
 	//delete m_stub;
 }
 
-std::vector<trackmanagement::Track> TrackManagementClient::GetTracks(const trackmanagement::TrackRequest& request)
+std::vector<trackmanagement::Track> TrackManagementClient::getTracks(const trackmanagement::TrackRequest& request) const
 {
 	trackmanagement::TrackResponse reply;
 	grpc::ClientContext context;
@@ -32,4 +32,81 @@ std::vector<trackmanagement::Track> TrackManagementClient::GetTracks(const track
 		}
 	}
 	return tracks;
+}
+
+std::vector<trackmanagement::LogMessage> TrackManagementClient::getLogMessages() const
+{
+	trackmanagement::Empty request;
+	trackmanagement::LogResponse reply;
+	grpc::ClientContext context;
+	std::vector<trackmanagement::LogMessage> logMessages;
+
+	grpc::Status status = m_stub->GetLogMessages(&context, request, &reply);
+	if (status.ok())
+	{
+		auto logResponse = reply.messages();
+		logMessages.reserve(logResponse.size());
+
+		for (auto& message : logResponse)
+		{
+			logMessages.push_back(message);
+		}
+	}
+
+	return logMessages;
+}
+
+std::string TrackManagementClient::getInstallStatus() const
+{
+	
+	trackmanagement::Empty request;
+	trackmanagement::InstallStatusResponse reply;
+	grpc::ClientContext context;
+	std::string installStatus = "";
+
+	grpc::Status status = m_stub->GetInstallStatus(&context, request, &reply);
+	if (status.ok())
+	{
+		installStatus = reply.installstatus();
+	}
+
+	return installStatus;
+}
+
+void TrackManagementClient::installRandomNationals()
+{
+	trackmanagement::Empty request;
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->InstallRandomNationals(&context, request, &reply);
+}
+
+void TrackManagementClient::installRandomSupercross()
+{
+	trackmanagement::Empty request;
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->InstallRandomSupercross(&context, request, &reply);
+}
+
+void TrackManagementClient::installRandomFreeRides()
+{
+	trackmanagement::Empty request;
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->InstallRandomFreeRides(&context, request, &reply);
+}
+
+void TrackManagementClient::installSelectedTrack(const char* trackName)
+{
+	trackmanagement::InstallTrackRequest request;
+	request.set_trackname(trackName);
+
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->InstallSelectedTrack(&context, request, &reply);
 }

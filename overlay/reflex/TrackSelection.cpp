@@ -71,7 +71,7 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		request.set_tracktype(g_trackTypeComboItems[m_trackTypeFilterIndex]);
 		request.set_slot(g_slotComboItems[m_slotFilterIndex]);
 		request.set_sortby(g_sortByComboItems[m_sortByIndex]);
-		auto tracks = m_trackManagementClient->GetTracks(request);
+		auto tracks = m_trackManagementClient->getTracks(request);
 
 		drawPreviewImage(device, m_selectedTrack);
 		drawComboBoxes();
@@ -200,22 +200,22 @@ void TrackSelection::drawActionButtons()
 	ImGui::BeginChild("actions");
 	if (ImGui::Button("Install Random National Tracks"))
 	{
-		
+		m_trackManagementClient->installRandomNationals();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Install Random Supercross Tracks"))
 	{
-
+		m_trackManagementClient->installRandomSupercross();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Install Random FreeRide Tracks"))
 	{
-
+		m_trackManagementClient->installRandomFreeRides();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Install Selected Track"))
 	{
-
+		m_trackManagementClient->installSelectedTrack(m_selectedTrackName.c_str());
 	}
 	ImGui::EndChild();
 }

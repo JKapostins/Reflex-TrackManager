@@ -89,6 +89,7 @@ namespace TrackManager
         public static string DatabasePath { get; private set; } = string.Empty;
         public static string LocalImagePath { get; private set; } = string.Empty;
         public static string LocalTrackPath { get; private set; } = string.Empty;
+        public const int SlotCount = 8;
 
         public static Track[] Tracks { get; private set; } = null;
 

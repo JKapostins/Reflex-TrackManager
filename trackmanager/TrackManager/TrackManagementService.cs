@@ -12,16 +12,14 @@ namespace TrackManager
 
         public bool OverlayClientConnected { get; set; }
 
-        public TrackManagementService(Track[] tracks)
+        public TrackManagementService()
         {
             OverlayClientConnected = false;
-            m_tracks = tracks;
         }
 
-        // Server side handler of the SayHello RPC
         public override Task<Trackmanagement.TrackResponse> GetTracks(Trackmanagement.TrackRequest request, ServerCallContext context)
         {
-            Trackmanagement.Track[] tracks = tracks = m_tracks.Select(t => new Trackmanagement.Track
+            Trackmanagement.Track[] tracks = tracks = Reflex.Tracks.Select(t => new Trackmanagement.Track
             {
                 Name = t.TrackName,
                 Type = t.TrackType,
@@ -88,14 +86,49 @@ namespace TrackManager
                 Tracks = { tracks }
             });
         }
+        public override Task<Trackmanagement.InstallStatusResponse> GetInstallStatus(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            return Task.FromResult(new Trackmanagement.InstallStatusResponse
+            {
+                InstallStatus = ""
+            });
+        }
 
+        public override Task<Trackmanagement.Empty> InstallRandomNationals(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            TrackInstaller.EnqueueRandomRandomTracks(TrackType.National);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+
+        public override Task<Trackmanagement.Empty> InstallRandomSupercross(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            TrackInstaller.EnqueueRandomRandomTracks(TrackType.Supercross);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+        public override Task<Trackmanagement.Empty> InstallRandomFreeRides(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            TrackInstaller.EnqueueRandomRandomTracks(TrackType.FreeRide);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+        public override Task<Trackmanagement.Empty> InstallSelectedTrack(Trackmanagement.InstallTrackRequest request, ServerCallContext context)
+        {
+            TrackInstaller.AddTrackToInstallQueue(request.TrackName);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+
+        public override Task<Trackmanagement.LogResponse> GetLogMessages(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            var messages = Log.TryDequeueAll();
+            return Task.FromResult(new Trackmanagement.LogResponse
+            {
+                Messages = { messages }
+            });
+        }
         public static string UnixTimeStampToString(long unixTimeStamp)
         {
             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
             return dtDateTime.ToString("yyyy-MM-dd");
         }
-
-        private Track[] m_tracks;
     }
 }
