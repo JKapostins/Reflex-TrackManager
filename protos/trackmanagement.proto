@@ -7,6 +7,7 @@ service TrackManager {
   rpc GetLogMessages (Empty) returns (LogResponse) {}
   rpc GetTracks (TrackRequest) returns (TrackResponse) {}
   rpc GetInstallStatus (Empty) returns (InstallStatusResponse) {}
+  rpc GetInstalledTracks (InstalledTrackRequest) returns (TrackResponse) {}
   rpc InstallRandomNationals (Empty) returns (Empty) {}
   rpc InstallRandomSupercross (Empty) returns (Empty) {}
   rpc InstallRandomFreeRides (Empty) returns (Empty) {}
@@ -26,6 +27,10 @@ message TrackResponse {
 
 message InstallTrackRequest {
 	string trackName = 1;
+}
+
+message InstalledTrackRequest {
+	string trackType = 1;
 }
 
 message InstallStatusResponse {

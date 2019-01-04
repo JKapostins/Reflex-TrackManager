@@ -3,6 +3,7 @@
 #include <string>
 
 class Log;
+class InstalledTracks;
 class TrackSelection;
 class TrackManagementClient;
 
@@ -20,4 +21,7 @@ private:
 	//UI objects
 	std::unique_ptr<TrackSelection> m_trackSelection;
 	std::unique_ptr<Log> m_log;
+	std::unique_ptr<InstalledTracks> m_installedNationals;
+	std::unique_ptr<InstalledTracks> m_installedSupercross;
+	std::unique_ptr<InstalledTracks> m_installedFreeRide;
 };

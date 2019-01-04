@@ -23,6 +23,8 @@ entry/dllmain.h
 set(reflexFiles
 reflex/Log.h
 reflex/Log.cpp
+reflex/InstalledTracks.h
+reflex/InstalledTracks.cpp
 reflex/OverlayKernel.h
 reflex/OverlayKernel.cpp
 reflex/TrackSelection.h

@@ -124,6 +124,26 @@ namespace TrackManager
                 Messages = { messages }
             });
         }
+
+        public override Task<Trackmanagement.TrackResponse> GetInstalledTracks(Trackmanagement.InstalledTrackRequest request, ServerCallContext context)
+        {
+            return Task.FromResult(new Trackmanagement.TrackResponse
+            {
+                Tracks = { LocalSettings.Tracks.Where(t => t.Installed == true && t.Type == request.TrackType)
+                .Select(t => new Trackmanagement.Track
+                {
+                    Name = t.Name,
+                    Type = t.Type,
+                    Image = t.Image,
+                    Author = t.Author,
+                    Slot = t.Slot,
+                    Date = UnixTimeStampToString(t.CreationTime),
+                    Downloads = t.TotalDownloads,
+                    Favorite = t.Favorite
+                })
+                .ToArray() }
+            });
+        }
         public static string UnixTimeStampToString(long unixTimeStamp)
         {
             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);

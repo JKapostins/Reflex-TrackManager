@@ -34,6 +34,27 @@ std::vector<trackmanagement::Track> TrackManagementClient::getTracks(const track
 	return tracks;
 }
 
+std::vector<trackmanagement::Track> TrackManagementClient::getInstalledTracks(const trackmanagement::InstalledTrackRequest& request) const
+{
+	trackmanagement::TrackResponse reply;
+	grpc::ClientContext context;
+	std::vector<trackmanagement::Track> tracks;
+
+	grpc::Status status = m_stub->GetInstalledTracks(&context, request, &reply);
+
+	if (status.ok())
+	{
+		auto trackResponse = reply.tracks();
+		tracks.reserve(trackResponse.size());
+
+		for (auto& track : trackResponse)
+		{
+			tracks.push_back(track);
+		}
+	}
+	return tracks;
+}
+
 std::vector<trackmanagement::LogMessage> TrackManagementClient::getLogMessages() const
 {
 	trackmanagement::Empty request;
