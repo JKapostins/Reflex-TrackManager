@@ -79,9 +79,20 @@ namespace TrackManager
             }
         }
 
-        public string[] GetImageFilesOnDisk()
+        public void Process()
+        {
+            TrackInstaller.ProcessDownloadQueue();
+        }
+
+        public static string[] GetImageFilesOnDisk()
         {
             var files = Directory.GetFiles(LocalImagePath);
+            return files.Select(t => Path.GetFileNameWithoutExtension(t.Trim())).ToArray();
+        }
+
+        public static string[] GetTracksOnDisk()
+        {
+            var files = Directory.GetFiles(LocalTrackPath);
             return files.Select(t => Path.GetFileNameWithoutExtension(t.Trim())).ToArray();
         }
 

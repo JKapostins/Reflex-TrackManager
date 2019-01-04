@@ -28,6 +28,7 @@ namespace TrackManager
                 //GNARLY_TODO: Add exit logic.
                 while (true)
                 {
+                    reflex.Process();
                 }
 
                 server.ShutdownAsync().Wait();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using TrackManagement;
@@ -10,26 +11,58 @@ namespace TrackManager
     public static class TrackInstaller
     {
         public static string InstallStatus { get; private set; } = string.Empty;
-        public static bool TrackInstallQueueEmpty
+        
+        public static void ProcessDownloadQueue()
         {
-            get
+            try
             {
-                return m_trackQueue.IsEmpty;
+                if (m_trackQueue.TryPeek(out Track track))
+                {
+                    var localTracks = Reflex.GetTracksOnDisk();
+                    if (localTracks.Contains(track.TrackName) == false)
+                    {
+                        Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Downloading '{0}' from server.", track.TrackName));
+                        DownloadFile(track.TrackUrl, string.Format(@"{0}\{1}{2}", Reflex.LocalTrackPath, track.TrackName, Path.GetExtension(track.TrackUrl)));
+                    }
+
+                    Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Installing '{0}' to databse folder.", track.TrackName));
+                    InstallTrack(track);
+
+                    //We here instead of at the top of the loop because there are concurrent processes checking to ensure the queue is empty.
+                    //We don't want external processes to think installation is complete before it really is.
+                    m_trackQueue.TryDequeue(out Track dummy);
+                    if (m_trackQueue.IsEmpty)
+                    {
+                        Log.Add(Trackmanagement.LogMessageType.LogInfo, "Installation Complete!");
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                ExceptionLogger.LogException(e);
             }
         }
 
-        public static bool InstallTrack(string trackName)
+        public static string DownloadImage(string trackName)
         {
-            bool success = false;
-
-            return success;
+            string path = string.Empty;
+            try
+            {
+                var track = Reflex.Tracks.Where(t => t.TrackName.Trim() == trackName.Trim()).Single();
+                DownloadFile(track.ThumbnailUrl, string.Format(@"{0}\{1}{2}", Reflex.LocalImagePath, trackName, Path.GetExtension(track.ThumbnailUrl)));
+            }
+            catch (Exception e)
+            {
+                ExceptionLogger.LogException(e);
+            }
+            return path;
         }
 
         public static void EnqueueRandomRandomTracks(string trackType)
         {
             try
             {
-                if (TrackInstallQueueEmpty)
+                if (m_trackQueue.IsEmpty)
                 {
                     Random rnd = new Random();
                     for (int i = 0; i < Reflex.SlotCount; ++i)
@@ -81,6 +114,20 @@ namespace TrackManager
             }
         }
 
+        public static void InstallTrack(Track track)
+        {
+            string trackPath = string.Format("{0}\\{1}.zip", Reflex.LocalTrackPath, track.TrackName);
+            if(File.Exists(trackPath))
+            {
+                ZipFile.ExtractToDirectory(trackPath, Reflex.DatabasePath, true);
+                //GNARLY_TODO: Log to config file.
+            }
+            else
+            {
+                Log.Add(Trackmanagement.LogMessageType.LogError, string.Format("Installation Failed. The track file does not exist {0}", trackPath));
+            }
+        }
+
         private static string DownloadTrack(string trackName)
         {
             string path = string.Empty;
@@ -96,22 +143,7 @@ namespace TrackManager
             return path;
         }
 
-        public static string DownloadImage(string trackName)
-        {
-            
-            string path = string.Empty;
-            try
-            {
-                var track = Reflex.Tracks.Where(t => t.TrackName.Trim() == trackName.Trim()).Single();
-                DownloadFile(track.ThumbnailUrl, string.Format(@"{0}\{1}{2}", Reflex.LocalImagePath, trackName, Path.GetExtension(track.ThumbnailUrl)));
-            }
-            catch (Exception e)
-            {
-                ExceptionLogger.LogException(e);
-            }
-            return path;
-        }
-
+        
         private static bool DownloadFile(string url, string destFile)
         {
             bool success = false;
