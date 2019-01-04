@@ -181,7 +181,7 @@ void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tr
 		ImGui::Text(track.author().c_str()); ImGui::NextColumn();
 		ImGui::Text(track.date().c_str()); ImGui::NextColumn();
 		ImGui::Text("%d", track.downloads()); ImGui::NextColumn();
-		ImGui::Text("<3"); ImGui::NextColumn();
+		ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
 	}
 	ImGui::EndChild();
 }
@@ -191,22 +191,32 @@ void TrackSelection::drawActionButtons()
 	ImVec2 windowSize = ImGui::GetWindowSize();
 
 	//Hardcoding position because window is fixed size and i'm tired
-	static float offsetX = 12;
+	static float offsetX = 50;
 	static float offsetY = 28.0f;
 
 	ImGui::SetCursorPosX(offsetX);
 	ImGui::SetCursorPosY(windowSize.y - offsetY);
 
 	ImGui::BeginChild("actions");
-	ImGui::Button("Install Random National Tracks");
+	if (ImGui::Button("Install Random National Tracks"))
+	{
+		
+	}
 	ImGui::SameLine();
-	ImGui::Button("Install Random Supercross Tracks");
+	if (ImGui::Button("Install Random Supercross Tracks"))
+	{
+
+	}
 	ImGui::SameLine();
-	ImGui::Button("Install Random FreeRide Tracks");
+	if (ImGui::Button("Install Random FreeRide Tracks"))
+	{
+
+	}
 	ImGui::SameLine();
-	ImGui::Button("Add to Favorites");
-	ImGui::SameLine();
-	ImGui::Button("Install Selected");
+	if (ImGui::Button("Install Selected Track"))
+	{
+
+	}
 	ImGui::EndChild();
 }
 
