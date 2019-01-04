@@ -31,8 +31,9 @@ namespace TrackManager
             DatabasePath = InstallPath + @"\Database";
             LocalImagePath = Environment.CurrentDirectory + @"\Images";
             LocalTrackPath = Environment.CurrentDirectory + @"\Tracks";
+            LocalSettingsPath = Environment.CurrentDirectory + @"\Settings";
 
-            if(Directory.Exists(LocalImagePath) == false)
+            if (Directory.Exists(LocalImagePath) == false)
             {
                 Directory.CreateDirectory(LocalImagePath);
             }
@@ -40,6 +41,11 @@ namespace TrackManager
             if (Directory.Exists(LocalTrackPath) == false)
             {
                 Directory.CreateDirectory(LocalTrackPath);
+            }
+
+            if (Directory.Exists(LocalSettingsPath) == false)
+            {
+                Directory.CreateDirectory(LocalSettingsPath);
             }
 
             Console.WriteLine("Detected Mx vs Atv Reflex install path: " + InstallPath);
@@ -100,6 +106,7 @@ namespace TrackManager
         public static string DatabasePath { get; private set; } = string.Empty;
         public static string LocalImagePath { get; private set; } = string.Empty;
         public static string LocalTrackPath { get; private set; } = string.Empty;
+        public static string LocalSettingsPath { get; private set; } = string.Empty;
         public const int SlotCount = 8;
 
         public static Track[] Tracks { get; private set; } = null;

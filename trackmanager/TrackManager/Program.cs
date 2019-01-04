@@ -15,6 +15,8 @@ namespace TrackManager
                 Reflex reflex = new Reflex();
                 reflex.ValidateInstallation();
                 reflex.DownloadImages();
+                LocalSettings.Load();
+
                 var managementService = new TrackManagementService();
                 Server server = new Server
                 {

@@ -120,7 +120,8 @@ namespace TrackManager
             if(File.Exists(trackPath))
             {
                 ZipFile.ExtractToDirectory(trackPath, Reflex.DatabasePath, true);
-                //GNARLY_TODO: Log to config file.
+                LocalSettings.HandleTrackInstall(track, trackPath);
+                LocalSettings.SaveTracks();
             }
             else
             {
