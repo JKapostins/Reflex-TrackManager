@@ -18,6 +18,7 @@ private:
 	void drawComboBoxes();
 	void drawTableHeader();
 	void drawTableBody(const std::vector<trackmanagement::Track>& tracks);
+	void drawActionButtons();
 	void setTableColumnWidth();
 	LPDIRECT3DTEXTURE9 createTextureFromFile(LPDIRECT3DDEVICE9 device, const char* fileName);
 

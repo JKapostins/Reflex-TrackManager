@@ -61,7 +61,7 @@ TrackSelection::~TrackSelection()
 
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
-	static float windowHeight = 950;
+	static float windowHeight = 948;
 	static float windowWidth = 960;
 	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_Always);
 
@@ -88,6 +88,8 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 				m_loadNewImage = true;
 			}
 		}
+
+		drawActionButtons();
 
 	}
 	ImGui::End();
@@ -140,11 +142,10 @@ void TrackSelection::drawComboBoxes()
 
 void TrackSelection::drawTableHeader()
 {
-	static float headerHeight = 25;
-	ImGui::BeginChild("header", ImVec2(0, headerHeight));
-	ImGui::Columns(7, "tracksHeader", true); // 4-ways, with border
-	ImGui::Separator();
+	static float headerHeight = 30;
+	ImGui::BeginChild("header", ImVec2(0, headerHeight), true);
 	
+	ImGui::Columns(7, "tracksHeader");
 	setTableColumnWidth();
 
 	ImGui::Text("Name"); ImGui::NextColumn();
@@ -153,15 +154,15 @@ void TrackSelection::drawTableHeader()
 	ImGui::Text("Author"); ImGui::NextColumn();
 	ImGui::Text("Date Created"); ImGui::NextColumn();
 	ImGui::Text("Downloads"); ImGui::NextColumn();
-	ImGui::Text("Favorite"); ImGui::NextColumn();
-	ImGui::Separator();
+	ImGui::Text("Favorite"); 
+
 	ImGui::EndChild();
 }
 
 void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tracks)
 {
 	static const float height = 30.0f;
-	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height));
+	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height), true);
 	ImGui::Columns(7, "availabletracks");
 
 	setTableColumnWidth();
@@ -183,8 +184,30 @@ void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tr
 		ImGui::Text("<3"); ImGui::NextColumn();
 	}
 	ImGui::EndChild();
-	ImGui::Columns(1);
-	ImGui::Separator();
+}
+
+void TrackSelection::drawActionButtons()
+{
+	ImVec2 windowSize = ImGui::GetWindowSize();
+
+	//Hardcoding position because window is fixed size and i'm tired
+	static float offsetX = 12;
+	static float offsetY = 28.0f;
+
+	ImGui::SetCursorPosX(offsetX);
+	ImGui::SetCursorPosY(windowSize.y - offsetY);
+
+	ImGui::BeginChild("actions");
+	ImGui::Button("Install Random National Tracks");
+	ImGui::SameLine();
+	ImGui::Button("Install Random Supercross Tracks");
+	ImGui::SameLine();
+	ImGui::Button("Install Random FreeRide Tracks");
+	ImGui::SameLine();
+	ImGui::Button("Add to Favorites");
+	ImGui::SameLine();
+	ImGui::Button("Install Selected");
+	ImGui::EndChild();
 }
 
 void TrackSelection::setTableColumnWidth()
