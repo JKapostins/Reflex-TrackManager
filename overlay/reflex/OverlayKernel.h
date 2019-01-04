@@ -2,6 +2,7 @@
 #include <d3d9.h>
 #include <string>
 
+class Log;
 class TrackSelection;
 class TrackManagementClient;
 
@@ -18,4 +19,5 @@ private:
 
 	//UI objects
 	std::unique_ptr<TrackSelection> m_trackSelection;
+	std::unique_ptr<Log> m_log;
 };
