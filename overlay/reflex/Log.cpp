@@ -27,7 +27,8 @@ struct LogImpl
 
 	void    Draw(const char* title, bool* p_open = NULL)
 	{
-		ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(934, 244), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(976, 787), ImGuiCond_FirstUseEver);
 		if (!ImGui::Begin(title, p_open))
 		{
 			ImGui::End();

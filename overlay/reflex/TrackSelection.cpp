@@ -61,9 +61,9 @@ TrackSelection::~TrackSelection()
 
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
-	static float windowHeight = 948;
-	static float windowWidth = 960;
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_Always);
+
+	ImGui::SetNextWindowSize(ImVec2(960, 982), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2(10, 49), ImGuiCond_FirstUseEver);
 
 	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize))
 	{
@@ -161,7 +161,7 @@ void TrackSelection::drawTableHeader()
 
 void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tracks)
 {
-	static const float height = 30.0f;
+	static float height = 32.0f;
 	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height), true);
 	ImGui::Columns(7, "availabletracks");
 
@@ -192,7 +192,7 @@ void TrackSelection::drawActionButtons()
 
 	//Hardcoding position because window is fixed size and i'm tired
 	static float offsetX = 50;
-	static float offsetY = 28.0f;
+	static float offsetY = 34.0f;
 
 	ImGui::SetCursorPosX(offsetX);
 	ImGui::SetCursorPosY(windowSize.y - offsetY);

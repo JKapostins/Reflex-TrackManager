@@ -15,6 +15,8 @@ SharedTracks::~SharedTracks()
 
 void SharedTracks::render()
 {
+	ImGui::SetNextWindowSize(ImVec2(466, 244), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(976, 49), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Publicly Shared Track Lists", nullptr))
 	{
 		drawTable();
