@@ -141,6 +141,7 @@ namespace TrackManager
                     Downloads = t.TotalDownloads,
                     Favorite = t.Favorite
                 })
+                .OrderBy(t => t.Slot)
                 .ToArray() }
             });
         }
