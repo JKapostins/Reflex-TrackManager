@@ -4,6 +4,7 @@
 
 class Log;
 class InstalledTracks;
+class SharedTracks;
 class TrackSelection;
 class TrackManagementClient;
 
@@ -24,4 +25,5 @@ private:
 	std::unique_ptr<InstalledTracks> m_installedNationals;
 	std::unique_ptr<InstalledTracks> m_installedSupercross;
 	std::unique_ptr<InstalledTracks> m_installedFreeRide;
+	std::unique_ptr<SharedTracks> m_sharedTracks;
 };

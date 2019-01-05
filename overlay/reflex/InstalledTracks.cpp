@@ -27,8 +27,6 @@ void InstalledTracks::render()
 	{
 		drawTable(installedTracks);
 		drawActions();
-		ImGui::Separator();
-		drawInfo();
 	}
 	ImGui::End();
 }
@@ -71,8 +69,7 @@ void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& track
 }
 void InstalledTracks::drawActions()
 {
-	static float height = 24.0f;
-	ImGui::BeginChild("actions", ImVec2(0.0f, height));
+	ImGui::BeginChild("actions");
 	if (ImGui::Button("Add to Favorites"))
 	{
 	}
@@ -80,12 +77,6 @@ void InstalledTracks::drawActions()
 	if (ImGui::Button("Share Track List"))
 	{
 	}
-	ImGui::EndChild();
-}
-void InstalledTracks::drawInfo()
-{
-	ImGui::BeginChild("info");
-	ImGui::Text("Shared track list (Hello World)");
 	ImGui::EndChild();
 }
 

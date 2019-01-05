@@ -27,6 +27,8 @@ reflex/InstalledTracks.h
 reflex/InstalledTracks.cpp
 reflex/OverlayKernel.h
 reflex/OverlayKernel.cpp
+reflex/SharedTracks.h
+reflex/SharedTracks.cpp
 reflex/TrackSelection.h
 reflex/TrackSelection.cpp
 )
