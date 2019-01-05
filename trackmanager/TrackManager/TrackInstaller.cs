@@ -119,7 +119,14 @@ namespace TrackManager
             string trackPath = string.Format("{0}\\{1}.zip", Reflex.LocalTrackPath, track.TrackName);
             if(File.Exists(trackPath))
             {
-                ZipFile.ExtractToDirectory(trackPath, Reflex.DatabasePath, true);
+                using (Stream fileStream = File.OpenRead(trackPath))
+                {
+                    using (ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+                    {
+                        WriteTrackFiles(archive);
+                    }
+                }
+
                 LocalSettings.HandleTrackInstall(track, trackPath);
                 LocalSettings.SaveTracks();
             }
@@ -127,6 +134,29 @@ namespace TrackManager
             {
                 Log.Add(Trackmanagement.LogMessageType.LogError, string.Format("Installation Failed. The track file does not exist {0}", trackPath));
             }
+        }
+
+        private static void WriteTrackFiles(ZipArchive archive)
+        {
+            string databaseExt = ".dx9.database";
+            string levelExt = ".dx9.level";
+            string packageExt = ".dx9.package";
+            string sceneExt = ".dx9.scene";
+
+            //Ensure only valid files get copied
+            foreach (ZipArchiveEntry entry in archive.Entries)
+            {
+                if (entry.FullName.EndsWith(databaseExt, StringComparison.OrdinalIgnoreCase)
+                    || entry.FullName.EndsWith(levelExt, StringComparison.OrdinalIgnoreCase)
+                    || entry.FullName.EndsWith(packageExt, StringComparison.OrdinalIgnoreCase)
+                    || entry.FullName.EndsWith(sceneExt, StringComparison.OrdinalIgnoreCase)
+                    )
+                {
+                    entry.ExtractToFile(string.Format(@"{0}\{1}",Reflex.DatabasePath, entry.Name), true);
+                }
+            }
+
+
         }
 
         private static string DownloadTrack(string trackName)
