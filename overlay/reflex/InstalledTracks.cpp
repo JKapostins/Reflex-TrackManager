@@ -26,13 +26,16 @@ void InstalledTracks::render()
 	if (ImGui::Begin(windowTitle, nullptr))
 	{
 		drawTable(installedTracks);
+		drawActions();
+		ImGui::Separator();
+		drawInfo();
 	}
 	ImGui::End();
 }
 
 void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& tracks)
 {
-	static float height = 12.0f;
+	static float height = 14.0f;
 	static float tableWidth = 830.0f;
 	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
 	ImGui::BeginChild("installed tracks body", ImVec2(0, ImGui::GetFontSize() * height), true, ImGuiWindowFlags_HorizontalScrollbar);
@@ -68,11 +71,22 @@ void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& track
 }
 void InstalledTracks::drawActions()
 {
-
+	static float height = 24.0f;
+	ImGui::BeginChild("actions", ImVec2(0.0f, height));
+	if (ImGui::Button("Add to Favorites"))
+	{
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Share Track List"))
+	{
+	}
+	ImGui::EndChild();
 }
 void InstalledTracks::drawInfo()
 {
-
+	ImGui::BeginChild("info");
+	ImGui::Text("Shared track list (Hello World)");
+	ImGui::EndChild();
 }
 
 void InstalledTracks::setTableColumnWidth()
