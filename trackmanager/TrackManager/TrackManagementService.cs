@@ -28,7 +28,7 @@ namespace TrackManager
                 Slot = t.SlotNumber,
                 Date = UnixTimeStampToString(t.CreationTime),
                 Downloads = 0,
-                Favorite = false,
+                Favorite = GetFavorite(t.TrackName),
 
             }).ToArray();
 
@@ -77,7 +77,7 @@ namespace TrackManager
                     }
                 case "Favorite":
                     {
-                        tracks = tracks.OrderBy(t => t.Favorite).ToArray();
+                        tracks = tracks.OrderByDescending(t => t.Favorite).ToArray();
                         break;
                     }
             }
@@ -116,6 +116,12 @@ namespace TrackManager
             return Task.FromResult(new Trackmanagement.Empty());
         }
 
+        public override Task<Trackmanagement.Empty> ToggleFavorite(Trackmanagement.InstallTrackRequest request, ServerCallContext context)
+        {
+            LocalSettings.ToggleFavorite(request.TrackName);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+
         public override Task<Trackmanagement.LogResponse> GetLogMessages(Trackmanagement.Empty request, ServerCallContext context)
         {
             var messages = Log.TryDequeueAll();
@@ -150,6 +156,17 @@ namespace TrackManager
             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
             return dtDateTime.ToString("yyyy-MM-dd");
+        }
+
+        private bool GetFavorite(string trackName)
+        {
+            bool favorite = false;
+            var localTrack = LocalSettings.Tracks.Where(t => t.Name == trackName).SingleOrDefault();
+            if(localTrack != null)
+            {
+                favorite = localTrack.Favorite;
+            }
+            return favorite;
         }
     }
 }

@@ -131,3 +131,14 @@ void TrackManagementClient::installSelectedTrack(const char* trackName)
 
 	m_stub->InstallSelectedTrack(&context, request, &reply);
 }
+
+void TrackManagementClient::toggleFavorite(const char* trackName)
+{
+	trackmanagement::InstallTrackRequest request;
+	request.set_trackname(trackName);
+
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->ToggleFavorite(&context, request, &reply);
+}

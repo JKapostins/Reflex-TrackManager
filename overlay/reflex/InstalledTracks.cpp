@@ -26,7 +26,15 @@ void InstalledTracks::render()
 	if (ImGui::Begin(windowTitle, nullptr))
 	{
 		drawTable(installedTracks);
-		drawActions();
+
+		bool selectedIsFavorite = false;
+		std::string selected = m_selectedTrackName;
+		auto trackIter = std::find_if(installedTracks.begin(), installedTracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
+		if (trackIter != installedTracks.end())
+		{
+			selectedIsFavorite = trackIter->favorite();
+		}
+		drawActions(selectedIsFavorite);
 	}
 	ImGui::End();
 }
@@ -67,11 +75,16 @@ void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& track
 	}
 	ImGui::EndChild();
 }
-void InstalledTracks::drawActions()
+void InstalledTracks::drawActions(bool favorite)
 {
 	ImGui::BeginChild("actions");
-	if (ImGui::Button("Add to Favorites"))
+	
+	if (ImGui::Button(favorite ? "Remove from Favorites" : "Add to Favorites"))
 	{
+		if (m_selectedTrackName.size() > 0)
+		{
+			m_trackManagementClient->toggleFavorite(m_selectedTrackName.c_str());
+		}
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Share Track List"))

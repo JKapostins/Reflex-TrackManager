@@ -12,6 +12,7 @@ service TrackManager {
   rpc InstallRandomSupercross (Empty) returns (Empty) {}
   rpc InstallRandomFreeRides (Empty) returns (Empty) {}
   rpc InstallSelectedTrack (InstallTrackRequest) returns (Empty) {}
+  rpc ToggleFavorite (InstallTrackRequest) returns (Empty) {}
 }
 
 message TrackRequest {

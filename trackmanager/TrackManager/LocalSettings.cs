@@ -69,33 +69,38 @@ namespace TrackManager
             }
         }
 
-        public static void HandleTrackFavorite(TrackManagement.Track track, bool favorite)
+        public static void ToggleFavorite(string trackName)
         {
-            var existing = Tracks.Where(t => t.Name == track.TrackName && t.Type == track.TrackType).SingleOrDefault();
-            if (existing != null)
+            var track = Reflex.Tracks.Where(t => t.TrackName == trackName).SingleOrDefault();
+            if (track != null)
             {
-                existing.Favorite = favorite;
-            }
-            else
-            {
-                Tracks.Add(new LocalTrack
+                var existing = Tracks.Where(t => t.Name == track.TrackName && t.Type == track.TrackType).SingleOrDefault();
+                if (existing != null)
                 {
-                    Name = track.TrackName,
-                    Type = track.TrackType,
-                    Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, track.TrackName, Path.GetExtension(track.ThumbnailUrl)).Replace("\\", "/"),
-                    Data = "",
-                    Author = track.Author,
-                    Slot = track.SlotNumber,
-                    CreationTime = track.CreationTime,
-                    TotalDownloads = track.RatingVoteCount, //GNARLY_TODO: covert to downloads
-                    MyDownloads = 1,
-                    Favorite = false,
-                    Installed = true
-                });
+                    existing.Favorite = !existing.Favorite;
+                }
+                else
+                {
+                    Tracks.Add(new LocalTrack
+                    {
+                        Name = track.TrackName,
+                        Type = track.TrackType,
+                        Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, track.TrackName, Path.GetExtension(track.ThumbnailUrl)).Replace("\\", "/"),
+                        Data = "",
+                        Author = track.Author,
+                        Slot = track.SlotNumber,
+                        CreationTime = track.CreationTime,
+                        TotalDownloads = track.RatingVoteCount, //GNARLY_TODO: covert to downloads
+                        MyDownloads = 1,
+                        Favorite = true,
+                        Installed = false
+                    });
+                }
+                SaveTracks();
             }
         }
 
-        public static List<LocalTrack> Tracks { get; set; } = new List<LocalTrack>();
+        public static List<LocalTrack> Tracks { get; private set; } = new List<LocalTrack>();
 
         private const string TrackSettingsFile = "Tracks.json";
     }

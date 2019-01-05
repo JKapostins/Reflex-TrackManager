@@ -16,6 +16,7 @@ class TrackManagementClient
 	 void installRandomSupercross();
 	 void installRandomFreeRides();
 	 void installSelectedTrack(const char* trackName);
+	 void toggleFavorite(const char* trackName);
 
  private:
   trackmanagement::TrackManager::Stub* m_stub;

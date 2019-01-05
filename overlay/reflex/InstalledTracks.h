@@ -13,7 +13,7 @@ public:
 
 private:
 	void drawTable(const std::vector<trackmanagement::Track>& tracks);
-	void drawActions();
+	void drawActions(bool favorite);
 	void setTableColumnWidth();
 	std::string m_selectedTrackName;
 	std::string m_trackType;
