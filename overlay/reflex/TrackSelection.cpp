@@ -61,17 +61,34 @@ TrackSelection::~TrackSelection()
 
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
-
 	ImGui::SetNextWindowSize(ImVec2(960, 982), ImGuiCond_Always);
 	ImGui::SetNextWindowPos(ImVec2(10, 49), ImGuiCond_FirstUseEver);
-
 	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize))
 	{
+		static int previousTrackTypeIndex = 0;
+		static int previousSlotTypeIndex = 0;
+		static int previousSortByIndex = 0;
+
 		trackmanagement::TrackRequest request;
 		request.set_tracktype(g_trackTypeComboItems[m_trackTypeFilterIndex]);
 		request.set_slot(g_slotComboItems[m_slotFilterIndex]);
 		request.set_sortby(g_sortByComboItems[m_sortByIndex]);
 		auto tracks = m_trackManagementClient->getTracks(request);
+
+		//Select first track in list anytime there is a change in the track list
+		if (m_trackTypeFilterIndex != previousTrackTypeIndex
+			|| m_slotFilterIndex != previousSlotTypeIndex
+			|| m_sortByIndex != previousSortByIndex)
+		{
+			if (tracks.size() > 0)
+			{
+				m_selectedTrackName = tracks[0].name();
+				m_selectedTrack = tracks[0];
+			}
+			previousTrackTypeIndex = m_trackTypeFilterIndex;
+			previousSlotTypeIndex = m_slotFilterIndex;
+			previousSortByIndex = m_sortByIndex;
+		}
 
 		drawPreviewImage(device, m_selectedTrack);
 		drawComboBoxes();

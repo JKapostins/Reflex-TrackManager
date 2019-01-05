@@ -23,6 +23,11 @@ void InstalledTracks::render()
 	request.set_tracktype(m_trackType.c_str());
 	
 	auto installedTracks = m_trackManagementClient->getInstalledTracks(request);
+	if (m_selectedTrackName.size() == 0 && installedTracks.size() > 0)
+	{
+		m_selectedTrackName = installedTracks[0].name();
+	}
+
 	if (ImGui::Begin(windowTitle, nullptr))
 	{
 		drawTable(installedTracks);
