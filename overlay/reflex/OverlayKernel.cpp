@@ -24,6 +24,8 @@ OverlayKernel::~OverlayKernel()
 
 void OverlayKernel::render(LPDIRECT3DDEVICE9 device)
 {
+	drawHelp();
+
 	m_trackSelection->render(device);
 
 	ImGui::SetNextWindowPos(ImVec2(976, 295), ImGuiCond_FirstUseEver);
@@ -45,4 +47,16 @@ void OverlayKernel::render(LPDIRECT3DDEVICE9 device)
 void OverlayKernel::setVisibility(bool visible)
 {
 	m_trackManagementClient->setOverlayVisible(visible);
+}
+
+void OverlayKernel::drawHelp()
+{
+	ImGui::SetNextWindowPos(ImVec2(733,12), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(374, 24), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowBgAlpha(0.3f); // Transparent background
+	if (ImGui::Begin("ToggleHelp", nullptr,   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
+	{
+		ImGui::Text("Press f11 on your keyboard to show/hide the overlay");
+	}
+	ImGui::End();
 }

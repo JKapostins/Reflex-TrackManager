@@ -17,6 +17,8 @@ public:
 	void setVisibility(bool visible);
 
 private:
+	void drawHelp();
+
 	//GRPC client
 	std::shared_ptr<TrackManagementClient> m_trackManagementClient;
 
