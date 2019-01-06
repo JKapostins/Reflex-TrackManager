@@ -7,11 +7,17 @@ namespace TrackManager
     class Program
     {
         const int Port = 50051;
-
+        const string Version = "0.1";
         public static void Main(string[] args)
         {
             try
             {
+                ApplicationUpdater updater = new ApplicationUpdater();
+                if (updater.IsActiveVersion() == false)
+                {
+                    updater.DownloadAndLaunchUpdater();
+                    return;
+                }
                 Sharing.Initialize();
                 Reflex reflex = new Reflex();
                 reflex.ValidateInstallation();
