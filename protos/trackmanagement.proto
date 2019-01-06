@@ -16,6 +16,7 @@ service TrackManager {
   rpc ShareTracks (InstallTrackRequest) returns (Empty) {}
   rpc GetSharedTracks (Empty) returns (SharedTrackResponse) {}
   rpc ToggleFavorite (InstallTrackRequest) returns (Empty) {}
+  rpc SetOverlayVisible (ToggleMessage) returns (Empty) {}
 }
 
 message TrackRequest {
@@ -24,6 +25,9 @@ message TrackRequest {
 	string sortBy = 3;
 }
 
+message ToggleMessage {
+	bool toggle = 1;
+}
 
 message TrackResponse {
   repeated Track tracks = 1;

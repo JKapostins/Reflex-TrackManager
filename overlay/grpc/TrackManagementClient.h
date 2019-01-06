@@ -19,6 +19,7 @@ class TrackManagementClient
 	 void installSelectedTrack(const char* trackName);
 	 void installSharedTracks(const char* trackListName);
 	 void shareTrackList(const char* trackType);
+	 void setOverlayVisible(bool visible);
 	 void toggleFavorite(const char* trackName);
 
  private:

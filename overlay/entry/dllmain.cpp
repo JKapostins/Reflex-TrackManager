@@ -149,6 +149,8 @@ void EvtIndiciumD3D9PreEndScene(
 		return;
 
 	TOGGLE_STATE(VK_F11, show_overlay);
+	reflexOverlay->setVisibility(show_overlay);
+
 	if (!show_overlay) 
 		return;
 
@@ -214,6 +216,8 @@ void EvtIndiciumD3D9PresentEx(
 		return;
 
 	TOGGLE_STATE(VK_F11, show_overlay);
+	reflexOverlay->setVisibility(show_overlay);
+
 	if (!show_overlay) 
 		return;
 

@@ -134,6 +134,13 @@ namespace TrackManager
             return Task.FromResult(new Trackmanagement.Empty());
         }
 
+        public override Task<Trackmanagement.Empty> SetOverlayVisible(Trackmanagement.ToggleMessage request, ServerCallContext context)
+        {
+            Reflex.SetOverlayVisibility(request.Toggle);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+
+
         public override Task<Trackmanagement.SharedTrackResponse> GetSharedTracks(Trackmanagement.Empty request, ServerCallContext context)
         {
             var lists = Sharing.SharedTracks.Where(t => TimeUtility.Expired(t.CreationTime, Sharing.LifeSpanMinutes) == false).Select(t => new Trackmanagement.SharedTrackList

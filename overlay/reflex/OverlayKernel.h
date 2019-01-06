@@ -14,6 +14,7 @@ public:
 	OverlayKernel();
 	~OverlayKernel();
 	void render(LPDIRECT3DDEVICE9 device);
+	void setVisibility(bool visible);
 
 private:
 	//GRPC client

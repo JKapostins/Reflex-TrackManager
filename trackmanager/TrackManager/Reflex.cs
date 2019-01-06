@@ -103,11 +103,17 @@ namespace TrackManager
             return files.Select(t => Path.GetFileNameWithoutExtension(t.Trim())).ToArray();
         }
 
+        public static void SetOverlayVisibility(bool visible)
+        {
+            OverlayVisible = visible;
+        }
+
         public static string InstallPath { get; private set; } = string.Empty;
         public static string DatabasePath { get; private set; } = string.Empty;
         public static string LocalImagePath { get; private set; } = string.Empty;
         public static string LocalTrackPath { get; private set; } = string.Empty;
         public static string LocalSettingsPath { get; private set; } = string.Empty;
+        public static bool OverlayVisible { get; private set; } = false;
         public const int SlotCount = 8;
 
         public static Track[] Tracks { get; private set; } = null;

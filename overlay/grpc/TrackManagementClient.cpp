@@ -176,6 +176,17 @@ void TrackManagementClient::shareTrackList(const char* trackType)
 	m_stub->ShareTracks(&context, request, &reply);
 }
 
+void TrackManagementClient::setOverlayVisible(bool visible)
+{
+	trackmanagement::ToggleMessage request;
+	request.set_toggle(visible);
+
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->SetOverlayVisible(&context, request, &reply);
+}
+
 void TrackManagementClient::toggleFavorite(const char* trackName)
 {
 	trackmanagement::InstallTrackRequest request;

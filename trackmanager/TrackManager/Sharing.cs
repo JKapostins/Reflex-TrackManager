@@ -15,7 +15,7 @@ namespace TrackManager
             ShareRateLimiter.Add(TrackType.Supercross, 0);
             ShareRateLimiter.Add(TrackType.FreeRide, 0);
             NextPollTime = 0;
-            PollSharedTracks();
+            SharedTracks = HttpUtility.Get<SharedReflexTracks[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/share");
         }
 
         public static void ShareTracks(string trackType)
@@ -78,7 +78,7 @@ namespace TrackManager
         }
         public static void PollSharedTracks()
         {
-            if (TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) > NextPollTime)
+            if (Reflex.OverlayVisible && TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) > NextPollTime)
             {
                 SharedTracks = HttpUtility.Get<SharedReflexTracks[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/share");
                 NextPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + ServerPollingRateInSeconds;

@@ -41,3 +41,8 @@ void OverlayKernel::render(LPDIRECT3DDEVICE9 device)
 	m_sharedTracks->render();
 	m_log->render();
 }
+
+void OverlayKernel::setVisibility(bool visible)
+{
+	m_trackManagementClient->setOverlayVisible(visible);
+}
