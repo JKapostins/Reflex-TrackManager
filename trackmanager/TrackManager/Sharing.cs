@@ -62,8 +62,8 @@ namespace TrackManager
                     {
                         var endTime = TimeUtility.UnixTimeStampToDateTime(ShareRateLimiter[trackType]);
                         TimeSpan ts = endTime.Subtract(DateTime.UtcNow);
-                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Share failed. You are limited to uploading a each track set once every {0} seconds.\n" +
-                            " You can share your {1} tracks again in {2} seconds", ShareRateLimitInSeconds, trackType, (int)ts.TotalSeconds));
+                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Share failed. You can share each track type once every {0} seconds.\n" +
+                            " You will be able to share your {1} tracks again in {2} seconds", ShareRateLimitInSeconds, trackType, (int)ts.TotalSeconds));
                     }
                 }
                 else
