@@ -54,7 +54,7 @@ namespace TrackManager
             string path = string.Empty;
             try
             {
-                var track = Reflex.Tracks.Where(t => t.TrackName.Trim() == trackName.Trim()).Single();
+                var track = Reflex.GetTracks().Where(t => t.TrackName.Trim() == trackName.Trim()).Single();
                 DownloadFile(track.ThumbnailUrl, string.Format(@"{0}\{1}{2}", Reflex.LocalImagePath, trackName, Path.GetExtension(track.ThumbnailUrl)));
             }
             catch (Exception e)
@@ -74,7 +74,7 @@ namespace TrackManager
                     for (int i = 0; i < Reflex.SlotCount; ++i)
                     {
                         int slot = i + 1;
-                        var randomTrack = Reflex.Tracks.Where(t => t.TrackType == trackType && t.SlotNumber == slot).Select(t => t.TrackName).OrderBy(item => rnd.Next()).FirstOrDefault();
+                        var randomTrack = Reflex.GetTracks().Where(t => t.TrackType == trackType && t.SlotNumber == slot).Select(t => t.TrackName).OrderBy(item => rnd.Next()).FirstOrDefault();
                         if (randomTrack != null)
                         {
                             AddTrackToInstallQueue(randomTrack);
@@ -127,7 +127,7 @@ namespace TrackManager
         {
             try
             {
-                var track = Reflex.Tracks.Where(t => t.TrackName == trackName).SingleOrDefault();
+                var track = Reflex.GetTracks().Where(t => t.TrackName == trackName).SingleOrDefault();
 
                 if (track != null)
                 {
@@ -202,7 +202,7 @@ namespace TrackManager
             string path = string.Empty;
             try
             {
-                var track = Reflex.Tracks.Where(t => t.TrackName.Trim() == trackName.Trim()).Single();
+                var track = Reflex.GetTracks().Where(t => t.TrackName.Trim() == trackName.Trim()).Single();
                 DownloadFile(track.TrackUrl, string.Format(@"{0}\{1}{2}", Reflex.LocalTrackPath, trackName, Path.GetExtension(track.TrackUrl)));
             }
             catch(Exception e)

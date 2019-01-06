@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace TrackManagerUpdater
 {
@@ -10,6 +6,13 @@ namespace TrackManagerUpdater
     {
         static void Main(string[] args)
         {
+            //kill the track manager if its running
+
+            //download the update
+
+            //re-launch the process
+            Process process = new Process();
+            Process.Start("TrackManager.exe");
         }
     }
 }

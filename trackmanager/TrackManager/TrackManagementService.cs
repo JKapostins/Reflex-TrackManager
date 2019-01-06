@@ -19,7 +19,7 @@ namespace TrackManager
 
         public override Task<Trackmanagement.TrackResponse> GetTracks(Trackmanagement.TrackRequest request, ServerCallContext context)
         {
-            Trackmanagement.Track[] tracks = tracks = Reflex.Tracks.Select(t => new Trackmanagement.Track
+            Trackmanagement.Track[] tracks = tracks = Reflex.GetTracks().Select(t => new Trackmanagement.Track
             {
                 Name = t.TrackName,
                 Type = t.TrackType,
@@ -171,7 +171,7 @@ namespace TrackManager
         {
             return Task.FromResult(new Trackmanagement.TrackResponse
             {
-                Tracks = { LocalSettings.Tracks.Where(t => t.Installed == true && t.Type == request.TrackType)
+                Tracks = { LocalSettings.GetTracks().Where(t => t.Installed == true && t.Type == request.TrackType)
                 .Select(t => new Trackmanagement.Track
                 {
                     Name = t.Name,
@@ -191,7 +191,7 @@ namespace TrackManager
         private bool GetFavorite(string trackName)
         {
             bool favorite = false;
-            var localTrack = LocalSettings.Tracks.Where(t => t.Name == trackName).SingleOrDefault();
+            var localTrack = LocalSettings.GetTracks().Where(t => t.Name == trackName).SingleOrDefault();
             if(localTrack != null)
             {
                 favorite = localTrack.Favorite;

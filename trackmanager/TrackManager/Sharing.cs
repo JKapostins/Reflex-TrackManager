@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using ReflexUtility;
+﻿using ReflexUtility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +30,7 @@ namespace TrackManager
                         var trackSetName = randomNames.Where(n => currentSharedList.Any(t => t.Name == n) == false).FirstOrDefault();
                         if (trackSetName != null)
                         {
-                            var installedTracks = LocalSettings.Tracks.Where(t => t.Installed && t.Type == trackType).Select(t => t.Name).ToArray();
+                            var installedTracks = LocalSettings.GetTracks().Where(t => t.Installed && t.Type == trackType).Select(t => t.Name).ToArray();
 
                             SharedReflexTracks tracksToShare = new SharedReflexTracks
                             {
@@ -78,7 +77,7 @@ namespace TrackManager
         }
         public static void PollSharedTracks()
         {
-            if (Reflex.OverlayVisible && TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) > NextPollTime)
+            if (Reflex.OverlayIsVisible() && TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) > NextPollTime)
             {
                 SharedTracks = HttpUtility.Get<SharedReflexTracks[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/share");
                 NextPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + ServerPollingRateInSeconds;

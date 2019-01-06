@@ -13,7 +13,10 @@ namespace TrackManager
     {
         public Reflex()
         {
-            Tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
+            lock (m_trackLocker)
+            {
+                m_tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
+            }
             m_uiFiles = new string[]
             {
                   "MXTables_DLC008.dx9.database"
@@ -24,6 +27,13 @@ namespace TrackManager
                 , "MXUI_DLC008.dx9.package"
             };
         }
+
+        public static string InstallPath { get; private set; } = string.Empty;
+        public static string DatabasePath { get; private set; } = string.Empty;
+        public static string LocalImagePath { get; private set; } = string.Empty;
+        public static string LocalTrackPath { get; private set; } = string.Empty;
+        public static string LocalSettingsPath { get; private set; } = string.Empty;
+        public const int SlotCount = 8;
 
         public void ValidateInstallation()
         {
@@ -64,24 +74,27 @@ namespace TrackManager
 
         public void DownloadImages()
         {
-            var serverTracks = Tracks.Select(t => t.TrackName.Trim()).ToArray();
-            var localImages = GetImageFilesOnDisk();
-            var newImages = serverTracks.Except(localImages).ToArray();
-
-            if(newImages.Length > 0)
+            lock (m_trackLocker)
             {
-                Console.WriteLine(string.Format("Preparing to download {0} new preview images...", newImages.Length));
-            }
+                var serverTracks = m_tracks.Select(t => t.TrackName.Trim()).ToArray();
+                var localImages = GetImageFilesOnDisk();
+                var newImages = serverTracks.Except(localImages).ToArray();
 
-            foreach(var image in newImages)
-            {
-                Console.WriteLine(string.Format("Downloading preview image \"{0}\"", image));
-                TrackInstaller.DownloadImage(image);
-            }
+                if (newImages.Length > 0)
+                {
+                    Console.WriteLine(string.Format("Preparing to download {0} new preview images...", newImages.Length));
+                }
 
-            if (newImages.Length > 0)
-            {
-                Console.WriteLine("Preview image downloads complete.");
+                foreach (var image in newImages)
+                {
+                    Console.WriteLine(string.Format("Downloading preview image \"{0}\"", image));
+                    TrackInstaller.DownloadImage(image);
+                }
+
+                if (newImages.Length > 0)
+                {
+                    Console.WriteLine("Preview image downloads complete.");
+                }
             }
         }
 
@@ -105,18 +118,27 @@ namespace TrackManager
 
         public static void SetOverlayVisibility(bool visible)
         {
-            OverlayVisible = visible;
+            lock (m_overlayLocker)
+            {
+                m_overlayVisible = visible;
+            }
         }
 
-        public static string InstallPath { get; private set; } = string.Empty;
-        public static string DatabasePath { get; private set; } = string.Empty;
-        public static string LocalImagePath { get; private set; } = string.Empty;
-        public static string LocalTrackPath { get; private set; } = string.Empty;
-        public static string LocalSettingsPath { get; private set; } = string.Empty;
-        public static bool OverlayVisible { get; private set; } = false;
-        public const int SlotCount = 8;
+        public static Track[] GetTracks()
+        {
+            lock(m_trackLocker)
+            {
+                return m_tracks;
+            }
+        }
 
-        public static Track[] Tracks { get; private set; } = null;
+        public static bool OverlayIsVisible()
+        {
+            lock(m_overlayLocker)
+            {
+                return m_overlayVisible;
+            }
+        }
 
         #region BetaSlots
         private bool BetaSlotsInstalled()
@@ -262,6 +284,10 @@ namespace TrackManager
         }
         #endregion
 
+        private static Track[] m_tracks;
+        private static bool m_overlayVisible = false;
+        private static readonly object m_trackLocker = new object();
+        private static readonly object m_overlayLocker = new object();
         private const string ReflexNameInSteam = "MX vs. ATV Reflex";
         private readonly string[] m_uiFiles;
     }
