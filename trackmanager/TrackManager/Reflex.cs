@@ -101,7 +101,7 @@ namespace TrackManager
         public void Process()
         {
             TrackInstaller.ProcessDownloadQueue();
-            Sharing.PollSharedTracks();
+            Sharing.Process();
         }
 
         public static string[] GetImageFilesOnDisk()

@@ -18,6 +18,7 @@ namespace TrackManager
                 return m_trackQueue.IsEmpty;
             }
         }
+
         public static void ProcessDownloadQueue()
         {
             try
@@ -68,22 +69,29 @@ namespace TrackManager
         {
             try
             {
-                if (m_trackQueue.IsEmpty)
+                if (Sharing.UploadTracksQueueIsEmpty)
                 {
-                    Random rnd = new Random();
-                    for (int i = 0; i < Reflex.SlotCount; ++i)
+                    if (m_trackQueue.IsEmpty)
                     {
-                        int slot = i + 1;
-                        var randomTrack = Reflex.GetTracks().Where(t => t.TrackType == trackType && t.SlotNumber == slot).Select(t => t.TrackName).OrderBy(item => rnd.Next()).FirstOrDefault();
-                        if (randomTrack != null)
+                        Random rnd = new Random();
+                        for (int i = 0; i < Reflex.SlotCount; ++i)
                         {
-                            AddTrackToInstallQueue(randomTrack);
+                            int slot = i + 1;
+                            var randomTrack = Reflex.GetTracks().Where(t => t.TrackType == trackType && t.SlotNumber == slot).Select(t => t.TrackName).OrderBy(item => rnd.Next()).FirstOrDefault();
+                            if (randomTrack != null)
+                            {
+                                AddTrackToInstallQueue(randomTrack);
+                            }
                         }
+                    }
+                    else
+                    {
+                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Please wait for the current install operation to complete before selecting random {0} tracks.", trackType));
                     }
                 }
                 else
                 {
-                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Please wait for the current install operation to complete before selecting random {0} tracks.", trackType));
+                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Your tracks are being processed for sharing. Wait for the upload operation to complete before installing new random {0} tracks.", trackType));
                 }
             }
             catch(Exception e)
@@ -96,26 +104,33 @@ namespace TrackManager
         {
             try
             {
-                if (m_trackQueue.IsEmpty)
+                if (Sharing.UploadTracksQueueIsEmpty)
                 {
-                    var item = Sharing.SharedTracks.Where(t => t.Name == listName).SingleOrDefault();
-                    if (item != null)
+                    if (m_trackQueue.IsEmpty)
                     {
-                        var tracks = item.Tracks.Split(",");
-                        Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Preparing to install {0} tracks from shared list '{1}'.", tracks.Length, listName));
-                        foreach (var track in tracks)
+                        var item = Sharing.GetSharedTracks().Where(t => t.Name == listName).SingleOrDefault();
+                        if (item != null)
                         {
-                            AddTrackToInstallQueue(track);
+                            var tracks = item.Tracks.Split(",");
+                            Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Preparing to install {0} tracks from shared list '{1}'.", tracks.Length, listName));
+                            foreach (var track in tracks)
+                            {
+                                AddTrackToInstallQueue(track);
+                            }
+                        }
+                        else
+                        {
+                            Log.Add(Trackmanagement.LogMessageType.LogError, string.Format("Failed to install shared tracks ({0}) because they were not found'.", listName));
                         }
                     }
                     else
                     {
-                        Log.Add(Trackmanagement.LogMessageType.LogError, string.Format("Failed to install shared tracks ({0}) because they were not found'.", listName));
+                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Please wait for the current install operation to complete installing shared tracks '{0}'.", listName));
                     }
                 }
                 else
                 {
-                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Please wait for the current install operation to complete installing shared tracks '{0}'.", listName));
+                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Your tracks are being processed for sharing. Wait for the upload operation to complete before installing {0} tracks.", listName));
                 }
             }
             catch (Exception e)
@@ -127,23 +142,30 @@ namespace TrackManager
         {
             try
             {
-                var track = Reflex.GetTracks().Where(t => t.TrackName == trackName).SingleOrDefault();
-
-                if (track != null)
+                if (Sharing.UploadTracksQueueIsEmpty)
                 {
-                    if (m_trackQueue.Any(q => q.TrackType == track.TrackType && q.SlotNumber == track.SlotNumber) == false)
+                    var track = Reflex.GetTracks().Where(t => t.TrackName == trackName).SingleOrDefault();
+
+                    if (track != null)
                     {
-                        m_trackQueue.Enqueue(track);
-                        Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Added '{0}' ({1} Slot {2}) to the install queue.", track.TrackName, track.TrackType, track.SlotNumber));
+                        if (m_trackQueue.Any(q => q.TrackType == track.TrackType && q.SlotNumber == track.SlotNumber) == false)
+                        {
+                            m_trackQueue.Enqueue(track);
+                            Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Added '{0}' ({1} Slot {2}) to the install queue.", track.TrackName, track.TrackType, track.SlotNumber));
+                        }
+                        else
+                        {
+                            Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("There is already a track being installed to '{0} Slot {1}'. Wait for the current install process to finish before installing '{2}'.", track.TrackType, track.SlotNumber, track.TrackName));
+                        }
                     }
                     else
                     {
-                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("There is already a track being installed to '{0} Slot {1}'. Wait for the current install process to finish before installing '{2}'.", track.TrackType, track.SlotNumber, track.TrackName));
+                        Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Unable to find '{0}'. Install operation cancelled.", trackName));
                     }
                 }
                 else
                 {
-                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Unable to find '{0}'. Install operation cancelled.", trackName));
+                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Your tracks are being processed for sharing. Wait for the upload operation to complete before installing {0}.", trackName));
                 }
             }
             catch(Exception e)

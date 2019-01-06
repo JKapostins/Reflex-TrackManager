@@ -130,7 +130,7 @@ namespace TrackManager
 
         public override Task<Trackmanagement.Empty> ShareTracks(Trackmanagement.InstallTrackRequest request, ServerCallContext context)
         {
-            Sharing.ShareTracks(request.TrackName);
+            Sharing.AddTracksToUploadQueue(request.TrackName);
             return Task.FromResult(new Trackmanagement.Empty());
         }
 
@@ -143,7 +143,7 @@ namespace TrackManager
 
         public override Task<Trackmanagement.SharedTrackResponse> GetSharedTracks(Trackmanagement.Empty request, ServerCallContext context)
         {
-            var lists = Sharing.SharedTracks.Where(t => TimeUtility.Expired(t.CreationTime, Sharing.LifeSpanMinutes) == false).Select(t => new Trackmanagement.SharedTrackList
+            var lists = Sharing.GetSharedTracks().Where(t => TimeUtility.Expired(t.CreationTime, Sharing.LifeSpanMinutes) == false).Select(t => new Trackmanagement.SharedTrackList
             {
                 Name = t.Name,
                 Type = t.Type,
