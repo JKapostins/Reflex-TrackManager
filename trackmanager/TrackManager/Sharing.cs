@@ -88,7 +88,7 @@ namespace TrackManager
         public static SharedReflexTracks[] SharedTracks { get; private set; }
         public static Dictionary<string, long> ShareRateLimiter { get; private set; } = new Dictionary<string, long>();
         public static long NextPollTime;
-        public const int LifeSpanMinutes = 60;
+        public const int LifeSpanMinutes = 5;
         public const int ServerPollingRateInSeconds = 2;
         public const int ShareRateLimitInSeconds = 60;
     }

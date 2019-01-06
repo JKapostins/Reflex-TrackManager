@@ -34,7 +34,7 @@ namespace TrackManager
             long expirationTime = unixTimeStamp + (60 * expirationOffsetInMinutes);
             var endTime = UnixTimeStampToDateTime(expirationTime);
             TimeSpan ts = endTime.Subtract(DateTime.UtcNow);
-            return string.Format("{0:D2}:{1:D2}", ts.Minutes, ts.Seconds, ts.Milliseconds);
+            return string.Format("{0}:{1:D2}", ts.Minutes, ts.Seconds, ts.Milliseconds);
         }
     }
 }
