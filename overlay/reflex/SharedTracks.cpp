@@ -5,7 +5,7 @@
 
 SharedTracks::SharedTracks(std::shared_ptr<TrackManagementClient> client)
 	: m_trackManagementClient(client)
-
+	, m_selectedListName("")
 {
 }
 
@@ -27,6 +27,17 @@ void SharedTracks::render()
 
 void SharedTracks::drawTable()
 {
+	auto sharedList = m_trackManagementClient->getSharedTracks();
+	if (sharedList.size() == 0)
+	{
+		m_selectedListName = "";
+	}
+	else if (m_selectedListName.size() == 0)
+	{
+		m_selectedListName = sharedList[0].name();
+	}
+
+
 	static float height = 14.0f;
 	static float tableWidth = 400.0f;
 	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
@@ -36,13 +47,21 @@ void SharedTracks::drawTable()
 	ImGui::Text("Track Set Name"); ImGui::NextColumn();
 	ImGui::Text("Type"); ImGui::NextColumn();
 	ImGui::Text("Expires"); ImGui::NextColumn();
-
 	ImGui::Separator();
 
-	ImGui::Text("%d", "PlaceHolderName"); ImGui::NextColumn();
-	ImGui::Text("Supercross"); ImGui::NextColumn();
-	ImGui::Text("4:38"); ImGui::NextColumn();
+	for (auto& track : sharedList)
+	{
+		if (ImGui::Selectable(track.name().c_str(), m_selectedListName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
+		{
+			m_selectedListName = track.name();
+		}
+		bool hovered = ImGui::IsItemHovered();
+		ImGui::NextColumn();
 
+		ImGui::Text(track.type().c_str()); ImGui::NextColumn();
+		ImGui::Text(track.expires().c_str()); ImGui::NextColumn();
+
+	}
 	ImGui::EndChild();
 }
 void SharedTracks::drawActions()
@@ -50,6 +69,10 @@ void SharedTracks::drawActions()
 	ImGui::BeginChild("actions");
 	if (ImGui::Button("Installed selected"))
 	{
+		if (m_selectedListName.size() > 0)
+		{
+			m_trackManagementClient->installSharedTracks(m_selectedListName.c_str());
+		}
 	}
 	ImGui::EndChild();
 }

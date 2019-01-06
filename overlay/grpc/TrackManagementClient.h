@@ -10,12 +10,15 @@ class TrackManagementClient
 	 ~TrackManagementClient();
 	 std::vector<trackmanagement::Track> getTracks(const trackmanagement::TrackRequest& request) const;
 	 std::vector<trackmanagement::Track> getInstalledTracks(const trackmanagement::InstalledTrackRequest& request) const;
+	 std::vector<trackmanagement::SharedTrackList> getSharedTracks() const;
 	 std::vector<trackmanagement::LogMessage> getLogMessages() const;
 	 std::string getInstallStatus() const;
 	 void installRandomNationals();
 	 void installRandomSupercross();
 	 void installRandomFreeRides();
 	 void installSelectedTrack(const char* trackName);
+	 void installSharedTracks(const char* trackListName);
+	 void shareTrackList(const char* trackType);
 	 void toggleFavorite(const char* trackName);
 
  private:

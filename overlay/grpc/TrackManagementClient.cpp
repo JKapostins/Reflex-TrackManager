@@ -55,6 +55,28 @@ std::vector<trackmanagement::Track> TrackManagementClient::getInstalledTracks(co
 	return tracks;
 }
 
+std::vector<trackmanagement::SharedTrackList> TrackManagementClient::getSharedTracks() const
+{
+	trackmanagement::Empty request;
+	trackmanagement::SharedTrackResponse reply;
+	grpc::ClientContext context;
+	std::vector<trackmanagement::SharedTrackList> tracks;
+
+	grpc::Status status = m_stub->GetSharedTracks(&context, request, &reply);
+
+	if (status.ok())
+	{
+		auto trackResponse = reply.sharedtracks();
+		tracks.reserve(trackResponse.size());
+
+		for (auto& track : trackResponse)
+		{
+			tracks.push_back(track);
+		}
+	}
+	return tracks;
+}
+
 std::vector<trackmanagement::LogMessage> TrackManagementClient::getLogMessages() const
 {
 	trackmanagement::Empty request;
@@ -130,6 +152,28 @@ void TrackManagementClient::installSelectedTrack(const char* trackName)
 	grpc::ClientContext context;
 
 	m_stub->InstallSelectedTrack(&context, request, &reply);
+}
+
+void TrackManagementClient::installSharedTracks(const char* trackListName)
+{
+	trackmanagement::InstallTrackRequest request;
+	request.set_trackname(trackListName);
+
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->InstallSharedTracks(&context, request, &reply);
+}
+
+void TrackManagementClient::shareTrackList(const char* trackType)
+{
+	trackmanagement::InstallTrackRequest request;
+	request.set_trackname(trackType);
+
+	trackmanagement::Empty reply;
+	grpc::ClientContext context;
+
+	m_stub->ShareTracks(&context, request, &reply);
 }
 
 void TrackManagementClient::toggleFavorite(const char* trackName)

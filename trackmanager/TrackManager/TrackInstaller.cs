@@ -11,7 +11,13 @@ namespace TrackManager
     public static class TrackInstaller
     {
         public static string InstallStatus { get; private set; } = string.Empty;
-        
+        public static bool InstallQueueIsEmpty
+        {
+            get
+            {
+                return m_trackQueue.IsEmpty;
+            }
+        }
         public static void ProcessDownloadQueue()
         {
             try
@@ -81,6 +87,38 @@ namespace TrackManager
                 }
             }
             catch(Exception e)
+            {
+                ExceptionLogger.LogException(e);
+            }
+        }
+
+        public static void EnqueueSharedTracks(string listName)
+        {
+            try
+            {
+                if (m_trackQueue.IsEmpty)
+                {
+                    var item = Sharing.SharedTracks.Where(t => t.Name == listName).SingleOrDefault();
+                    if (item != null)
+                    {
+                        var tracks = item.Tracks.Split(",");
+                        Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Preparing to install {0} tracks from shared list '{1}'.", tracks.Length, listName));
+                        foreach (var track in tracks)
+                        {
+                            AddTrackToInstallQueue(track);
+                        }
+                    }
+                    else
+                    {
+                        Log.Add(Trackmanagement.LogMessageType.LogError, string.Format("Failed to install shared tracks ({0}) because they were not found'.", listName));
+                    }
+                }
+                else
+                {
+                    Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Please wait for the current install operation to complete installing shared tracks '{0}'.", listName));
+                }
+            }
+            catch (Exception e)
             {
                 ExceptionLogger.LogException(e);
             }

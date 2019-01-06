@@ -26,7 +26,7 @@ namespace TrackManager
                 Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
                 Author = t.Author,
                 Slot = t.SlotNumber,
-                Date = UnixTimeStampToString(t.CreationTime),
+                Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
                 Downloads = 0,
                 Favorite = GetFavorite(t.TrackName),
 
@@ -116,10 +116,39 @@ namespace TrackManager
             return Task.FromResult(new Trackmanagement.Empty());
         }
 
+        public override Task<Trackmanagement.Empty> InstallSharedTracks(Trackmanagement.InstallTrackRequest request, ServerCallContext context)
+        {
+            TrackInstaller.EnqueueSharedTracks(request.TrackName);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+
         public override Task<Trackmanagement.Empty> ToggleFavorite(Trackmanagement.InstallTrackRequest request, ServerCallContext context)
         {
             LocalSettings.ToggleFavorite(request.TrackName);
             return Task.FromResult(new Trackmanagement.Empty());
+        }
+
+        public override Task<Trackmanagement.Empty> ShareTracks(Trackmanagement.InstallTrackRequest request, ServerCallContext context)
+        {
+            Sharing.ShareTracks(request.TrackName);
+            return Task.FromResult(new Trackmanagement.Empty());
+        }
+
+        public override Task<Trackmanagement.SharedTrackResponse> GetSharedTracks(Trackmanagement.Empty request, ServerCallContext context)
+        {
+            var lists = Sharing.SharedTracks.Where(t => TimeUtility.Expired(t.CreationTime, Sharing.LifeSpanMinutes) == false).Select(t => new Trackmanagement.SharedTrackList
+            {
+                Name = t.Name,
+                Type = t.Type,
+                Expires = TimeUtility.TimeToExpire(t.CreationTime, Sharing.LifeSpanMinutes)
+
+            })
+            .OrderByDescending(t => t.Expires)
+            .ToArray();
+            return Task.FromResult(new Trackmanagement.SharedTrackResponse
+            {
+                SharedTracks = { lists }
+            });
         }
 
         public override Task<Trackmanagement.LogResponse> GetLogMessages(Trackmanagement.Empty request, ServerCallContext context)
@@ -143,19 +172,13 @@ namespace TrackManager
                     Image = t.Image,
                     Author = t.Author,
                     Slot = t.Slot,
-                    Date = UnixTimeStampToString(t.CreationTime),
+                    Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
                     Downloads = t.TotalDownloads,
                     Favorite = t.Favorite
                 })
                 .OrderBy(t => t.Slot)
                 .ToArray() }
             });
-        }
-        public static string UnixTimeStampToString(long unixTimeStamp)
-        {
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
-            return dtDateTime.ToString("yyyy-MM-dd");
         }
 
         private bool GetFavorite(string trackName)

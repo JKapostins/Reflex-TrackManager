@@ -12,6 +12,9 @@ service TrackManager {
   rpc InstallRandomSupercross (Empty) returns (Empty) {}
   rpc InstallRandomFreeRides (Empty) returns (Empty) {}
   rpc InstallSelectedTrack (InstallTrackRequest) returns (Empty) {}
+  rpc InstallSharedTracks (InstallTrackRequest) returns (Empty) {}
+  rpc ShareTracks (InstallTrackRequest) returns (Empty) {}
+  rpc GetSharedTracks (Empty) returns (SharedTrackResponse) {}
   rpc ToggleFavorite (InstallTrackRequest) returns (Empty) {}
 }
 
@@ -26,6 +29,16 @@ message TrackResponse {
   repeated Track tracks = 1;
 }
 
+message SharedTrackResponse {
+	repeated SharedTrackList sharedTracks = 1;
+}
+
+
+message SharedTrackList {
+	string name = 1;
+	string type = 2;
+	string expires = 3;
+}
 message InstallTrackRequest {
 	string trackName = 1;
 }

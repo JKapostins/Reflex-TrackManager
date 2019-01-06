@@ -12,6 +12,7 @@ namespace TrackManager
         {
             try
             {
+                Sharing.Initialize();
                 Reflex reflex = new Reflex();
                 reflex.ValidateInstallation();
                 reflex.DownloadImages();

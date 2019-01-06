@@ -14,6 +14,6 @@ public:
 private:
 	void drawTable();
 	void drawActions();
-	std::string m_selectedTrackName;
+	std::string m_selectedListName;
 	std::shared_ptr<TrackManagementClient> m_trackManagementClient;
 };

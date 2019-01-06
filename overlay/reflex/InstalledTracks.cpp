@@ -94,6 +94,7 @@ void InstalledTracks::drawActions(bool favorite)
 	ImGui::SameLine();
 	if (ImGui::Button("Share Track List"))
 	{
+		m_trackManagementClient->shareTrackList(m_trackType.c_str());
 	}
 	ImGui::EndChild();
 }

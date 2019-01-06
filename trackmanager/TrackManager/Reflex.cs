@@ -88,6 +88,7 @@ namespace TrackManager
         public void Process()
         {
             TrackInstaller.ProcessDownloadQueue();
+            Sharing.PollSharedTracks();
         }
 
         public static string[] GetImageFilesOnDisk()
