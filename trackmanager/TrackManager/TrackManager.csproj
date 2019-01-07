@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
 	<RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
 	<ApplicationManifest>app1.manifest</ApplicationManifest>
+	<ApplicationIcon>Reflex.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
