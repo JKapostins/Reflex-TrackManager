@@ -187,6 +187,11 @@ namespace TrackManager
                     }
                 }
 
+                //increment install count on the server
+                HttpUtility.Post("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/incrementinstall", track);
+
+                //increment install count locally, this will be overwritten the next time the track list is pulled
+                ++track.RatingVoteCount;
                 LocalSettings.HandleTrackInstall(track, trackPath);
                 LocalSettings.SaveTracks();
             }

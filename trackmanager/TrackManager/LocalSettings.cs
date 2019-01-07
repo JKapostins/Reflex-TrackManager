@@ -62,7 +62,7 @@ namespace TrackManager
                 var localTrack = m_tracks.Where(t => t.Name == track.TrackName && t.Type == track.TrackType).SingleOrDefault();
                 if (localTrack != null)
                 {
-                    ++localTrack.TotalDownloads;
+                    localTrack.TotalDownloads = track.RatingVoteCount;
                     ++localTrack.MyDownloads;
                     localTrack.Installed = true;
                 }

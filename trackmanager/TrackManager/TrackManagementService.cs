@@ -27,7 +27,7 @@ namespace TrackManager
                 Author = t.Author,
                 Slot = t.SlotNumber,
                 Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
-                Downloads = 0,
+                Downloads = t.RatingVoteCount,
                 Favorite = GetFavorite(t.TrackName),
 
             }).ToArray();
