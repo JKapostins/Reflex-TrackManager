@@ -18,7 +18,7 @@ namespace TrackManager
 
         public static long DateTimeToUnixTimeStamp(DateTime dateTime)
         {
-            return (long)(dateTime.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            return (long)(dateTime.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc))).TotalSeconds;
         }
 
         public static bool Expired(long unixTimeStamp, int expirationOffsetInMinutes)
