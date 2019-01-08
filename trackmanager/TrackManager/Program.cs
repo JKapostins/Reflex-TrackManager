@@ -7,11 +7,11 @@ namespace TrackManager
     class Program
     {
         const int Port = 50051;
-        const string Version = "0.1";
         public static void Main(string[] args)
         {
             try
             {
+                Console.WriteLine("Checking for updates...");
                 ApplicationUpdater updater = new ApplicationUpdater();
                 if (updater.IsActiveVersion() == false)
                 {
@@ -23,6 +23,7 @@ namespace TrackManager
                 reflex.ValidateInstallation();
                 reflex.DownloadImages();
                 LocalSettings.Load();
+                reflex.InstallRandomTracksOnFirstRun();
 
                 var managementService = new TrackManagementService();
                 Server server = new Server
@@ -34,7 +35,11 @@ namespace TrackManager
 
                 Console.WriteLine("Track management server listening on port " + Port);
 
-                //GNARLY_TODO: Add exit logic.
+                if(System.Diagnostics.Process.GetProcessesByName("MXReflex").Length == 0)
+                {
+                    Console.WriteLine("Waiting for you to launch MX vs. ATV Reflex...");
+                }
+
                 while (true)
                 {
                     reflex.Process();
@@ -50,7 +55,5 @@ namespace TrackManager
             Console.WriteLine("Press any key to close this window.");
             Console.ReadKey();
         }
-
-        
     }
 }

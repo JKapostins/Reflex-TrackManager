@@ -13,6 +13,9 @@ namespace TrackManagerUpdater
             if(args.Length != 1)
             {
                 Console.Error.WriteLine("Unexpected argument count. Usage: TrackManagerUpdater <version>");
+                Console.WriteLine("Press any key to exit.");
+                Console.Read();
+                return;
             }
 
             Console.WriteLine("Waiting for TrackManager to exit before installing update.");
@@ -21,6 +24,20 @@ namespace TrackManagerUpdater
             while(processName.Length > 0)
             {
                 processName = Process.GetProcessesByName(trackManagerManager);
+                System.Threading.Thread.Sleep(1000);
+            }
+
+
+            string reflex = "MXReflex";
+            Process[] reflexProcess = Process.GetProcessesByName(reflex);
+            if(reflexProcess.Length > 0)
+            {
+                Console.WriteLine("Please exit MX vs. ATV Reflex so the track manager can update.");
+            }
+
+            while (reflexProcess.Length > 0)
+            {
+                reflexProcess = Process.GetProcessesByName(reflex);
                 System.Threading.Thread.Sleep(1000);
             }
 

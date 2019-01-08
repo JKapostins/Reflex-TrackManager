@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TrackManagement;
-using ReflexUtility;
+﻿using ReflexUtility;
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.IO;
-using System.Diagnostics;
+using TrackManagement;
 
 namespace TrackManager
 {
@@ -31,17 +29,24 @@ namespace TrackManager
         public void DownloadAndLaunchUpdater()
         {
             string updaterExe = "TrackManagerUpdater.exe";
+            string updaterDirectory = Environment.CurrentDirectory + "/Update/";
+
+            if (Directory.Exists(updaterDirectory) == false)
+            {
+                Directory.CreateDirectory(updaterDirectory);
+            }
+
             using (var client = new WebClient())
             {
                 string updater = string.Format("https://s3.amazonaws.com/reflextrackmanager/{0}/{1}", m_activeVersion, updaterExe);
-                client.DownloadFile(updater, Path.GetFileName(updater));
+                client.DownloadFile(updater, updaterDirectory + Path.GetFileName(updater));
             }
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.UseShellExecute = true;
             info.CreateNoWindow = false;
             info.WindowStyle = ProcessWindowStyle.Normal;
-            info.FileName = updaterExe;
+            info.FileName = updaterDirectory + updaterExe;
             info.Arguments = m_activeVersion;
             Process.Start(info);
         }

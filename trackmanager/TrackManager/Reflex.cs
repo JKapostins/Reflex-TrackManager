@@ -26,6 +26,7 @@ namespace TrackManager
                 , "MXUI_DLC008.dx9.database"
                 , "MXUI_DLC008.dx9.package"
             };
+            m_reflexWasRunningLastFrame = false;
         }
 
         public static string InstallPath { get; private set; } = string.Empty;
@@ -98,8 +99,29 @@ namespace TrackManager
             }
         }
 
+        public void InstallRandomTracksOnFirstRun()
+        {
+            if(LocalSettings.TrackSettingsExist() == false)
+            {
+                Console.WriteLine("First time run detected. Preparing to install an initial set of random tracks.");
+
+                var trackSets = new string[] { TrackType.National, TrackType.Supercross, TrackType.FreeRide };
+                foreach (var set in trackSets)
+                {
+                    TrackInstaller.EnqueueRandomRandomTracks(set);
+
+                    //Cant install multiple sets at once so block until each one is complete.
+                    while (TrackInstaller.InstallQueueIsEmpty == false)
+                    {
+                        TrackInstaller.ProcessDownloadQueue();
+                    }
+                }
+            }
+        }
+
         public void Process()
         {
+            ProcessOverlayInjection();
             TrackInstaller.ProcessDownloadQueue();
             Sharing.Process();
         }
@@ -138,6 +160,30 @@ namespace TrackManager
             {
                 return m_overlayVisible;
             }
+        }
+
+        private void ProcessOverlayInjection()
+        {
+            bool reflexIsRunning = System.Diagnostics.Process.GetProcessesByName("MXReflex").Length > 0;
+
+            if(m_reflexWasRunningLastFrame == false && reflexIsRunning)
+            {
+                Console.WriteLine("Injecting track management overlay into the MXReflex process.");
+                string injectorProcess = "Overlay/Injector.exe";
+#if DEBUG
+                injectorProcess = "../../../../injector/Debug/Injector.exe";
+#endif
+                System.Diagnostics.Process.Start(injectorProcess);
+
+                Console.WriteLine("Press f11 on your keyboard to toggle the track management overlay on and off while in game.");
+            }
+            else if(m_reflexWasRunningLastFrame == true && reflexIsRunning == false)
+            {
+                Console.WriteLine("The MXReflex process was closed.");
+                Console.WriteLine("Waiting for you to launch MX vs. ATV Reflex...");
+            }
+
+            m_reflexWasRunningLastFrame = reflexIsRunning;
         }
 
         #region BetaSlots
@@ -286,6 +332,7 @@ namespace TrackManager
 
         private static Track[] m_tracks;
         private static bool m_overlayVisible = false;
+        private bool m_reflexWasRunningLastFrame;
         private static readonly object m_trackLocker = new object();
         private static readonly object m_overlayLocker = new object();
         private const string ReflexNameInSteam = "MX vs. ATV Reflex";

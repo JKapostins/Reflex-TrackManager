@@ -37,7 +37,7 @@ void main(int argc, char *argv[])
 			currentDirectory + "Indicium-Supra.dll"
 			, currentDirectory + "cares.dll"
 			, currentDirectory + "libprotobuf.dll"
-			, currentDirectory + "zlib.dll"
+			, currentDirectory + "zlib1.dll"
 			, currentDirectory + "turbojpeg.dll"
 			, currentDirectory + "TrackManager-Overlay.dll"
 		};

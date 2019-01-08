@@ -20,6 +20,17 @@ namespace TrackManager
             }
         }
 
+        public static bool TrackSettingsExist()
+        {
+            bool exist = false;
+            string fileName = string.Format("{0}\\{1}", Reflex.LocalSettingsPath, TrackSettingsFile);
+            if (File.Exists(fileName))
+            {
+                exist = true;
+            }
+            return exist;
+        }
+
         private static void LoadTracks()
         {
             string fileName = string.Format("{0}\\{1}", Reflex.LocalSettingsPath, TrackSettingsFile);
