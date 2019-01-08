@@ -27,6 +27,7 @@ namespace TrackManager
                 , "MXUI_DLC008.dx9.package"
             };
             m_reflexWasRunningLastFrame = false;
+            m_nextTrackPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + TrackPollTimeInSeconds;
         }
 
         public static string InstallPath { get; private set; } = string.Empty;
@@ -124,6 +125,7 @@ namespace TrackManager
             ProcessOverlayInjection();
             TrackInstaller.ProcessDownloadQueue();
             Sharing.Process();
+            PollTracks();
         }
 
         public static string[] GetImageFilesOnDisk()
@@ -159,6 +161,19 @@ namespace TrackManager
             lock(m_overlayLocker)
             {
                 return m_overlayVisible;
+            }
+        }
+
+        private void PollTracks()
+        {
+            if(TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) > m_nextTrackPollTime)
+            {
+                Console.WriteLine("Polling tracks...");
+                lock (m_trackLocker)
+                {
+                    m_tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
+                }
+                m_nextTrackPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + TrackPollTimeInSeconds;
             }
         }
 
@@ -333,6 +348,8 @@ namespace TrackManager
         private static Track[] m_tracks;
         private static bool m_overlayVisible = false;
         private bool m_reflexWasRunningLastFrame;
+        private long m_nextTrackPollTime;
+        private const int TrackPollTimeInSeconds = 60*5; //five minutes
         private static readonly object m_trackLocker = new object();
         private static readonly object m_overlayLocker = new object();
         private const string ReflexNameInSteam = "MX vs. ATV Reflex";
