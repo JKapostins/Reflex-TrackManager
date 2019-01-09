@@ -72,7 +72,7 @@ namespace TrackManager
                     }
                 case "Downloads":
                     {
-                        tracks = tracks.OrderBy(t => t.Downloads).ToArray();
+                        tracks = tracks.OrderByDescending(t => t.Downloads).ToArray();
                         break;
                     }
                 case "Favorite":
