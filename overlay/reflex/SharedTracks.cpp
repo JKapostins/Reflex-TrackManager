@@ -67,7 +67,7 @@ void SharedTracks::drawTable()
 void SharedTracks::drawActions()
 {
 	ImGui::BeginChild("actions");
-	if (ImGui::Button("Installed selected"))
+	if (ImGui::Button("Install Selected Track Set"))
 	{
 		if (m_selectedListName.size() > 0)
 		{
