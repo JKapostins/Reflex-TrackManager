@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using TrackManagement;
 
 namespace TrackManager
 {
@@ -52,6 +51,6 @@ namespace TrackManager
         }
 
         private string m_activeVersion;
-        private const string Version = "0.1";
+        private const string Version = "0.2";
     }
 }

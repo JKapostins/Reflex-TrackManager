@@ -59,7 +59,7 @@ namespace TrackManager
             }
         }
 
-        public static void HandleTrackInstall(TrackManagement.Track track, string dataPath)
+        public static void HandleTrackInstall(ReflexUtility.Track track, string dataPath)
         {
             //Uninstall the track in the current slot if it exists.
             lock (m_locker)

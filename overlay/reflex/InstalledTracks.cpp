@@ -47,10 +47,10 @@ void InstalledTracks::render()
 void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& tracks)
 {
 	static float height = 14.0f;
-	static float tableWidth = 830.0f;
+	static float tableWidth = 925.0f;
 	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
 	ImGui::BeginChild("installed tracks body", ImVec2(0, ImGui::GetFontSize() * height), true, ImGuiWindowFlags_HorizontalScrollbar);
-	ImGui::Columns(6, "installedTracks");
+	ImGui::Columns(7, "installedTracks");
 
 	setTableColumnWidth();
 
@@ -59,7 +59,8 @@ void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& track
 	ImGui::Text("Favorite"); ImGui::NextColumn();
 	ImGui::Text("Author"); ImGui::NextColumn();
 	ImGui::Text("Date Created"); ImGui::NextColumn();
-	ImGui::Text("Downloads"); ImGui::NextColumn();
+	ImGui::Text("Installs"); ImGui::NextColumn();
+	ImGui::Text("My Installs"); ImGui::NextColumn();
 	ImGui::Separator();
 
 	for (auto& track : tracks)
@@ -75,7 +76,8 @@ void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& track
 		ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
 		ImGui::Text(track.author().c_str()); ImGui::NextColumn();
 		ImGui::Text(track.date().c_str()); ImGui::NextColumn();
-		ImGui::Text("%d", track.downloads()); ImGui::NextColumn();
+		ImGui::Text("%d", track.installs()); ImGui::NextColumn();
+		ImGui::Text("%d", track.myinstalls()); ImGui::NextColumn();
 		
 	}
 	ImGui::EndChild();
@@ -114,5 +116,6 @@ void InstalledTracks::setTableColumnWidth()
 	ImGui::SetColumnWidth(3, authorWidth);
 	ImGui::SetColumnWidth(4, dateWidth);
 	ImGui::SetColumnWidth(5, downloadsWidth);
+	ImGui::SetColumnWidth(6, downloadsWidth);
 	
 }

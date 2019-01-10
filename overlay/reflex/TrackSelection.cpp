@@ -1,7 +1,9 @@
 #include "TrackSelection.h"
-#include <turbojpeg.h>
+#include <chrono>
 #include <fstream>
+#include <turbojpeg.h>
 #include "imgui/imgui.h"
+
 
 
 const char* g_trackTypeComboItems[] =
@@ -47,6 +49,7 @@ TrackSelection::TrackSelection(std::shared_ptr<TrackManagementClient> client)
 	, m_slotFilterIndex(0)
 	, m_sortByIndex(1) // sort by slot by default
 	, m_loadNewImage(false)
+	, m_lastTimeStamp(0)
 {
 }
 
@@ -73,31 +76,51 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		request.set_tracktype(g_trackTypeComboItems[m_trackTypeFilterIndex]);
 		request.set_slot(g_slotComboItems[m_slotFilterIndex]);
 		request.set_sortby(g_sortByComboItems[m_sortByIndex]);
-		auto tracks = m_trackManagementClient->getTracks(request);
 
+
+		//GNARLY_TODO: try realtime updating back by implementing ImGuiListClipper.
+		//This will allow us to fetch only the small amount of data we are currently viewing on screen. It will also save on memory costs
+		const int TrackRefreshRate = 10; //seconds
+		using namespace std::chrono;
+		seconds currentTime = duration_cast<seconds>(system_clock::now().time_since_epoch());
+		if (currentTime.count() > m_lastTimeStamp)
+		{
+			m_allTracks = m_trackManagementClient->getTracks(request);
+			m_lastTimeStamp = currentTime.count() + TrackRefreshRate;
+		}
+
+		
 		//Select first track in list anytime there is a change in the track list
 		if (m_trackTypeFilterIndex != previousTrackTypeIndex
 			|| m_slotFilterIndex != previousSlotTypeIndex
 			|| m_sortByIndex != previousSortByIndex)
 		{
-			if (tracks.size() > 0)
+			m_allTracks = m_trackManagementClient->getTracks(request);
+			if (m_allTracks.size() > 0)
 			{
-				m_selectedTrackName = tracks[0].name();
-				m_selectedTrack = tracks[0];
+				m_selectedTrackName = m_allTracks[0].name();
+				m_selectedTrack = m_allTracks[0];
 			}
 			previousTrackTypeIndex = m_trackTypeFilterIndex;
 			previousSlotTypeIndex = m_slotFilterIndex;
 			previousSortByIndex = m_sortByIndex;
 		}
+		else if (m_allTracks.size() == 0)
+		{
+			m_allTracks = m_trackManagementClient->getTracks(request);
+		}
+
+
 
 		drawPreviewImage(device, m_selectedTrack);
+		
+		
 		drawComboBoxes();
-		drawTableHeader();
-		drawTableBody(tracks);
+		drawTableBody(m_allTracks);
 		
 		std::string selected = m_selectedTrackName;
-		auto trackIter = std::find_if(tracks.begin(), tracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
-		if (trackIter != tracks.end())
+		auto trackIter = std::find_if(m_allTracks.begin(), m_allTracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
+		if (trackIter != m_allTracks.end())
 		{
 			m_selectedTrack = *trackIter;
 			if (m_previouslySelectedTrackName != m_selectedTrackName)
@@ -110,7 +133,6 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 
 	}
 	ImGui::End();
-
 	m_previouslySelectedTrackName = m_selectedTrackName;
 }
 
@@ -157,12 +179,14 @@ void TrackSelection::drawComboBoxes()
 	ImGui::EndChild();
 }
 
-void TrackSelection::drawTableHeader()
+void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tracks)
 {
-	static float headerHeight = 30;
-	ImGui::BeginChild("header", ImVec2(0, headerHeight), true);
-	
-	ImGui::Columns(7, "tracksHeader");
+	static float height = 34.0f;
+	static float tableWidth = 1024.0f;
+	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
+	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height), true, ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::Columns(8, "availabletracks");
+
 	setTableColumnWidth();
 
 	ImGui::Text("Name"); ImGui::NextColumn();
@@ -170,19 +194,10 @@ void TrackSelection::drawTableHeader()
 	ImGui::Text("Type"); ImGui::NextColumn();
 	ImGui::Text("Author"); ImGui::NextColumn();
 	ImGui::Text("Date Created"); ImGui::NextColumn();
-	ImGui::Text("Downloads"); ImGui::NextColumn();
-	ImGui::Text("Favorite"); 
-
-	ImGui::EndChild();
-}
-
-void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tracks)
-{
-	static float height = 32.0f;
-	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height), true);
-	ImGui::Columns(7, "availabletracks");
-
-	setTableColumnWidth();
+	ImGui::Text("Installs"); ImGui::NextColumn();
+	ImGui::Text("My Installs"); ImGui::NextColumn();
+	ImGui::Text("Favorite");  ImGui::NextColumn();
+	ImGui::Separator();
 
 	for (auto& track : tracks)
 	{
@@ -197,7 +212,8 @@ void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tr
 		ImGui::Text(track.type().c_str()); ImGui::NextColumn();
 		ImGui::Text(track.author().c_str()); ImGui::NextColumn();
 		ImGui::Text(track.date().c_str()); ImGui::NextColumn();
-		ImGui::Text("%d", track.downloads()); ImGui::NextColumn();
+		ImGui::Text("%d", track.installs()); ImGui::NextColumn();
+		ImGui::Text("%d", track.myinstalls()); ImGui::NextColumn();
 		ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
 	}
 	ImGui::EndChild();
@@ -245,6 +261,7 @@ void TrackSelection::setTableColumnWidth()
 	static const float authorWidth = 128.0f;
 	static const float dateWidth = 128.0f;
 	static const float downloadsWidth = 84.0f;
+	static float myInstalls = 86.0f;
 	static const float favoriteWidth = 84.0f;
 
 	ImGui::SetColumnWidth(0, nameWidth);
@@ -253,7 +270,8 @@ void TrackSelection::setTableColumnWidth()
 	ImGui::SetColumnWidth(3, authorWidth);
 	ImGui::SetColumnWidth(4, dateWidth);
 	ImGui::SetColumnWidth(5, downloadsWidth);
-	ImGui::SetColumnWidth(6, favoriteWidth);
+	ImGui::SetColumnWidth(6, myInstalls);
+	ImGui::SetColumnWidth(7, favoriteWidth);
 }
 
 LPDIRECT3DTEXTURE9 TrackSelection::createTextureFromFile(LPDIRECT3DDEVICE9 device, const char* fileName)

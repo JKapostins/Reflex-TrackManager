@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Reflex Track Manager"
-#define MyAppVersion "0.5"
+#define MyAppVersion "0.1"
 #define MyAppPublisher "Gnarlysoft LLC"
 #define MyAppURL "https://github.com/JKapostins/Reflex-TrackManager"
 #define MyAppExeName "TrackManager.exe"
@@ -14,7 +14,7 @@
 AppId={{2783D510-E6BF-4618-A40A-E7BCE45DFCCC}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}

@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using TrackManagement;
+using ReflexUtility;
 
 namespace TrackManager
 {
@@ -27,7 +27,8 @@ namespace TrackManager
                 Author = t.Author,
                 Slot = t.SlotNumber,
                 Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
-                Downloads = t.RatingVoteCount,
+                Installs = t.RatingVoteCount,
+                MyInstalls = GetMyInstalls(t.TrackName),
                 Favorite = GetFavorite(t.TrackName),
 
             }).ToArray();
@@ -72,7 +73,7 @@ namespace TrackManager
                     }
                 case "Downloads":
                     {
-                        tracks = tracks.OrderByDescending(t => t.Downloads).ToArray();
+                        tracks = tracks.OrderByDescending(t => t.Installs).ToArray();
                         break;
                     }
                 case "Favorite":
@@ -180,7 +181,8 @@ namespace TrackManager
                     Author = t.Author,
                     Slot = t.Slot,
                     Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
-                    Downloads = t.TotalDownloads,
+                    Installs = t.TotalDownloads,
+                    MyInstalls = t.MyDownloads,
                     Favorite = t.Favorite
                 })
                 .OrderBy(t => t.Slot)
@@ -197,6 +199,17 @@ namespace TrackManager
                 favorite = localTrack.Favorite;
             }
             return favorite;
+        }
+
+        private int GetMyInstalls(string trackName)
+        {
+            int installs = 0;
+            var localTrack = LocalSettings.GetTracks().Where(t => t.Name == trackName).SingleOrDefault();
+            if (localTrack != null)
+            {
+                installs = localTrack.MyDownloads;
+            }
+            return installs;
         }
     }
 }

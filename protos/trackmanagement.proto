@@ -79,7 +79,8 @@ message Track {
   string image = 3;
   string author = 4;
   string date = 5;
-  int32 downloads = 6;
+  int32 installs = 6;
   int32 slot = 7;
-  bool favorite = 8;
+  int32 myInstalls = 8;
+  bool favorite = 9;
 }

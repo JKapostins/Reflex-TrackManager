@@ -16,7 +16,6 @@ public:
 private:
 	void drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanagement::Track& selected);
 	void drawComboBoxes();
-	void drawTableHeader();
 	void drawTableBody(const std::vector<trackmanagement::Track>& tracks);
 	void drawActionButtons();
 	void setTableColumnWidth();
@@ -28,9 +27,11 @@ private:
 	int m_trackTypeFilterIndex;
 	int m_slotFilterIndex;
 	int m_sortByIndex;
+	long long m_lastTimeStamp;
 	trackmanagement::Track m_selectedTrack;
 	LPDIRECT3DTEXTURE9 m_previewImage;
 	std::string m_selectedTrackName;
 	std::string m_previouslySelectedTrackName;
 	std::shared_ptr<TrackManagementClient> m_trackManagementClient;
+	std::vector<trackmanagement::Track> m_allTracks;
 };
