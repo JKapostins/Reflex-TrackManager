@@ -34,7 +34,8 @@ const char* g_sortByComboItems[] =
 	, "Type"
 	, "Author"
 	, "Date Created"
-	, "Downloads"
+	, "Installs"
+	, "My Installs"
 	, "Favorite"
 };
 

@@ -71,9 +71,14 @@ namespace TrackManager
                         tracks = tracks.OrderBy(t => t.Date).ToArray();
                         break;
                     }
-                case "Downloads":
+                case "Installs":
                     {
                         tracks = tracks.OrderByDescending(t => t.Installs).ToArray();
+                        break;
+                    }
+                case "My Installs":
+                    {
+                        tracks = tracks.OrderByDescending(t => t.MyInstalls).ToArray();
                         break;
                     }
                 case "Favorite":
