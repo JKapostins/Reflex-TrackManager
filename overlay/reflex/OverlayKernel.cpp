@@ -60,3 +60,13 @@ void OverlayKernel::drawHelp()
 	}
 	ImGui::End();
 }
+
+void OverlayKernel::invalidateDeviceObjects()
+{
+	m_trackSelection->invalidateDeviceObjects();
+}
+void OverlayKernel::createDeviceObjects(LPDIRECT3DDEVICE9 device)
+{
+	m_trackSelection->createDeviceObjects(device);
+}
+

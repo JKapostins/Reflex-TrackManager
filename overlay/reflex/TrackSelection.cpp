@@ -274,6 +274,26 @@ void TrackSelection::setTableColumnWidth()
 	ImGui::SetColumnWidth(7, favoriteWidth);
 }
 
+void TrackSelection::invalidateDeviceObjects()
+{
+	if (m_previewImage != nullptr)
+	{
+		m_previewImage->Release();
+		m_previewImage = nullptr;
+	}
+	
+}
+void TrackSelection::createDeviceObjects(LPDIRECT3DDEVICE9 device)
+{
+	if (m_previewImage != nullptr)
+	{
+		m_previewImage->Release();
+		m_previewImage = nullptr;
+	}
+
+	m_previewImage = createTextureFromFile(device, m_selectedTrack.image().c_str());
+}
+
 LPDIRECT3DTEXTURE9 TrackSelection::createTextureFromFile(LPDIRECT3DDEVICE9 device, const char* fileName)
 {
 	LPDIRECT3DTEXTURE9 d3dTexture = nullptr;

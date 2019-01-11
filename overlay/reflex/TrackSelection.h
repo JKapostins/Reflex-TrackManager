@@ -12,6 +12,8 @@ public:
 	TrackSelection(std::shared_ptr<TrackManagementClient> client);
 	~TrackSelection();
 	void render(LPDIRECT3DDEVICE9 device);
+	void invalidateDeviceObjects();
+	void createDeviceObjects(LPDIRECT3DDEVICE9 device);
 
 private:
 	void drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanagement::Track& selected);

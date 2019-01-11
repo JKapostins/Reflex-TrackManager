@@ -164,6 +164,7 @@ void EvtIndiciumD3D9PreReset(
 	D3DPRESENT_PARAMETERS   *pPresentationParameters
 )
 {
+	reflexOverlay->invalidateDeviceObjects();
 	ImGui_ImplDX9_InvalidateDeviceObjects();
 }
 
@@ -173,6 +174,7 @@ void EvtIndiciumD3D9PostReset(
 )
 {
 	ImGui_ImplDX9_CreateDeviceObjects();
+	reflexOverlay->createDeviceObjects(pDevice);
 }
 
 void EvtIndiciumD3D9PresentEx(

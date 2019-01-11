@@ -15,6 +15,8 @@ public:
 	~OverlayKernel();
 	void render(LPDIRECT3DDEVICE9 device);
 	void setVisibility(bool visible);
+	void invalidateDeviceObjects();
+	void createDeviceObjects(LPDIRECT3DDEVICE9 device);
 
 private:
 	void drawHelp();
