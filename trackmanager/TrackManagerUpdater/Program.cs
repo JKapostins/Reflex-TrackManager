@@ -21,8 +21,6 @@ namespace TrackManagerUpdater
                     return;
                 }
 
-
-
                 Console.WriteLine("Waiting for TrackManager to exit before installing update.");
                 string trackManagerManager = "TrackManager";
                 Process[] processName = Process.GetProcessesByName(trackManagerManager);
