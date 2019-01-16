@@ -333,10 +333,17 @@ namespace TrackManager
                 if (reader.CheckIntegrity())
                 {
                     var manifestObject = reader.ACFFileToStruct();
-                    if(manifestObject.SubACF["AppState"].SubItems["name"] == ReflexNameInSteam)
+                    ACF_Struct appState = null;
+                    manifestObject.SubACF.TryGetValue("AppState", out appState);
+                    if (appState != null)
                     {
-                        installPath = string.Format(@"{0}\steamapps\common\{1}", steamInstallPath, manifestObject.SubACF["AppState"].SubItems["installdir"]);
-                        break;
+                        string gameName = null;
+                        appState.SubItems.TryGetValue("name", out gameName);
+                        if (gameName != null && gameName == ReflexNameInSteam)
+                        {
+                            installPath = string.Format(@"{0}\steamapps\common\{1}", steamInstallPath, manifestObject.SubACF["AppState"].SubItems["installdir"]);
+                            break;
+                        }
                     }
                 }
             }
