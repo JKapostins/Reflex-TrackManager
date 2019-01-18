@@ -80,7 +80,7 @@ using Poco::Util::IniFileConfiguration;
 using Poco::Path;
 
 // NOTE: DirectInput hooking is technically implemented but not really useful
-// #define HOOK_DINPUT8
+//#define HOOK_DINPUT8
 
 #ifdef HOOK_DINPUT8
 // DInput8
@@ -171,7 +171,7 @@ void IndiciumMainThread(LPVOID Params)
          * both windowed and full-screen mode without modifications. Section will be left here
          * for experiments and tests.
          */
-//#ifdef D3D9_LEGACY_HOOKING
+#ifdef D3D9_LEGACY_HOOKING
 
         try
         {
@@ -246,8 +246,8 @@ void IndiciumMainThread(LPVOID Params)
             logger.error("Hooking D3D9 failed: %s", pex.displayText());
         }
 
-//#endif
-#if 0
+#endif
+
         try
         {
             AutoPtr<Direct3D9Hooking::Direct3D9Ex> d3dEx(new Direct3D9Hooking::Direct3D9Ex);
@@ -305,7 +305,7 @@ void IndiciumMainThread(LPVOID Params)
                 ) -> HRESULT
             {
                 static std::once_flag flag;
-                std::call_once(flag, []() { Logger::get("HookDX9Ex").information("++ IDirect3DDevice9Ex::EndScene called"); });
+                std::call_once(flag, []() { Logger::get("HookDX9Ex").information("++ IDirect3DDevice9Ex::EndScene called"); INVOKE_INDICIUM_GAME_HOOKED(engine, IndiciumDirect3DVersion9); });
 
                 INVOKE_D3D9_CALLBACK(engine, EvtIndiciumD3D9PreEndScene, dev);
 
@@ -368,7 +368,6 @@ void IndiciumMainThread(LPVOID Params)
         {
             logger.error("Hooking D3D9Ex failed: %s", pex.displayText());
         }
-#endif
     }
 
 #pragma endregion
@@ -701,7 +700,7 @@ void IndiciumMainThread(LPVOID Params)
     //
     // TODO: legacy, fix me up!
     // 
-    if (engine->Configuration->getBool("DInput8.enabled", false))
+	if (engine->Configuration->getBool("DInput8.enabled", true))
     {
         bool dinput8_available;
         UINTX vtable8[DirectInput8Hooking::DirectInput8::VTableElements] = { 0 };
@@ -778,7 +777,7 @@ void HookDInput8(UINTX* vtable8)
         static std::once_flag flag;
         std::call_once(flag, []() { Logger::get("HookDInput8").information("++ IDirectInputDevice8::Acquire called"); });
 
-        return g_getDeviceData8Hook.callOrig(dev, cbObjectData, rgdod, pdwInOut, dwFlags);
+		return g_getDeviceData8Hook.callOrig(dev, cbObjectData, rgdod, pdwInOut, dwFlags);
     });
 
     logger.information("Hooking IDirectInputDevice8::GetDeviceInfo");
@@ -798,7 +797,8 @@ void HookDInput8(UINTX* vtable8)
         static std::once_flag flag;
         std::call_once(flag, []() { Logger::get("HookDInput8").information("++ IDirectInputDevice8::GetDeviceState called"); });
 
-        return g_getDeviceState8Hook.callOrig(dev, cbData, lpvData);
+		//GNARLY_TODO: To remove keyboard input from the game, don't call the original function 
+		return g_getDeviceState8Hook.callOrig(dev, cbData, lpvData);
     });
 
     logger.information("Hooking IDirectInputDevice8::GetObjectInfo");
