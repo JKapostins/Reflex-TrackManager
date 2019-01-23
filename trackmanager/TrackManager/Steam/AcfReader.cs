@@ -48,21 +48,24 @@ namespace TrackManager.Steam
                 CurrentPos = FirstItemEnd + 1;
                 string FirstItem = RegionToReadIn.Substring(FirstItemStart + 1, FirstItemEnd - FirstItemStart - 1);
 
-                int SecondItemStartQuote = RegionToReadIn.IndexOf('"', CurrentPos);
-                int SecondItemStartBraceleft = RegionToReadIn.IndexOf('{', CurrentPos);
-                if (SecondItemStartBraceleft == -1 || SecondItemStartQuote < SecondItemStartBraceleft)
+                if (FirstItem.Length > 0)
                 {
-                    int SecondItemEndQuote = RegionToReadIn.IndexOf('"', SecondItemStartQuote + 1);
-                    string SecondItem = RegionToReadIn.Substring(SecondItemStartQuote + 1, SecondItemEndQuote - SecondItemStartQuote - 1);
-                    CurrentPos = SecondItemEndQuote + 1;
-                    ACF.SubItems.Add(FirstItem, SecondItem);
-                }
-                else
-                {
-                    int SecondItemEndBraceright = RegionToReadIn.NextEndOf('{', '}', SecondItemStartBraceleft + 1);
-                    ACF_Struct ACFS = ACFFileToStruct(RegionToReadIn.Substring(SecondItemStartBraceleft + 1, SecondItemEndBraceright - SecondItemStartBraceleft - 1));
-                    CurrentPos = SecondItemEndBraceright + 1;
-                    ACF.SubACF.Add(FirstItem, ACFS);
+                    int SecondItemStartQuote = RegionToReadIn.IndexOf('"', CurrentPos);
+                    int SecondItemStartBraceleft = RegionToReadIn.IndexOf('{', CurrentPos);
+                    if ((SecondItemStartBraceleft == -1 || SecondItemStartQuote < SecondItemStartBraceleft) && ACF.SubItems.ContainsKey(FirstItem) == false)
+                    {
+                        int SecondItemEndQuote = RegionToReadIn.IndexOf('"', SecondItemStartQuote + 1);
+                        string SecondItem = RegionToReadIn.Substring(SecondItemStartQuote + 1, SecondItemEndQuote - SecondItemStartQuote - 1);
+                        CurrentPos = SecondItemEndQuote + 1;
+                        ACF.SubItems.Add(FirstItem, SecondItem);
+                    }
+                    else if(ACF.SubACF.ContainsKey(FirstItem) == false)
+                    {
+                        int SecondItemEndBraceright = RegionToReadIn.NextEndOf('{', '}', SecondItemStartBraceleft + 1);
+                        ACF_Struct ACFS = ACFFileToStruct(RegionToReadIn.Substring(SecondItemStartBraceleft + 1, SecondItemEndBraceright - SecondItemStartBraceleft - 1));
+                        CurrentPos = SecondItemEndBraceright + 1;
+                        ACF.SubACF.Add(FirstItem, ACFS);
+                    }
                 }
             }
 
