@@ -1,13 +1,13 @@
 ﻿using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using ReflexUtility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Text;
 
 namespace InvalidTrackHandler
 {
@@ -26,8 +26,41 @@ namespace InvalidTrackHandler
                 if(File.Exists(trackZip))
                 {
                     ProcessTrack(track, trackZip);
+                    string sourceFileName = Path.GetFileNameWithoutExtension(track.SourceTrackUrl).Trim();
+                    if (track.TrackName != sourceFileName)
+                    {
+                        //The track name has changed, delete the old track
+                        DeleteTrack(string.Format("{0}/{1}", "invalidreflextracks", sourceFileName), sourceFileName);
+                    }
                 }
             }
+        }
+
+        private void DeleteTrack(string bucket, string trackName)
+        {
+            //if the image exists we assume the data in the db and track files exist.
+            AwsS3Utility.DeleteObject(bucket, trackName + ".jpg", RegionEndpoint.USEast1);
+            AwsS3Utility.DeleteObject(bucket, trackName + ".zip", RegionEndpoint.USEast1);
+            AwsS3Utility.DeleteObject(bucket, trackName + ".rar", RegionEndpoint.USEast1);
+
+            try
+            {
+                //Remove from db
+                AmazonDynamoDBClient client = new AmazonDynamoDBClient(RegionEndpoint.USEast1);
+                string tableName = "ReflexTracks";
+                var request = new DeleteItemRequest
+                {
+                    TableName = tableName,
+                    Key = new Dictionary<string, AttributeValue>() { { "TrackName", new AttributeValue { S = trackName } } },
+                };
+
+                client.DeleteItemAsync(request).Wait();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error deleting track from database: " + e.Message);
+            }
+
         }
 
         private void ProcessTrack(Track track, string zipFile)
@@ -35,6 +68,13 @@ namespace InvalidTrackHandler
             //Reset to the defaults before re-processing the track
             track.ErrorInfo = string.Empty;
             track.Valid = true;
+            string thumbnailDownloadPath = track.SourceThumbnailUrl;
+            string folderName = track.TrackName;
+            string imageFileName = track.TrackName + Path.GetExtension(track.SourceThumbnailUrl);
+            string trackFileName = track.TrackName + ".zip"; // we know they are all zip files at this point.
+
+            track.ThumbnailUrl = string.Empty;
+            track.TrackUrl = string.Empty;
 
             TrackValidator validator = new TrackValidator();
             MemoryStream zipStream = new MemoryStream();
@@ -55,14 +95,11 @@ namespace InvalidTrackHandler
             zipArchive.Dispose();
             zipStream.Position = 0;
 
-            string folderName = Path.GetFileNameWithoutExtension(track.TrackUrl.Replace("+", " "));
-            string imageFileName = track.TrackName + Path.GetExtension(track.ThumbnailUrl);
-            string trackFileName = track.TrackName + ".zip"; // we know they are all zip files at this point.
+            
             string bucketName = track.Valid ? "reflextracks" : "invalidreflextracks";
             string baseDestUrl = string.Format("https://s3.amazonaws.com/{0}/{1}", bucketName, folderName).Replace(" ", "+");
 
             track.TrackUrl = string.Format("{0}/{1}", baseDestUrl, trackFileName).Replace(" ", "+");
-            string thumbnailDownloadPath = track.ThumbnailUrl;
             track.ThumbnailUrl = string.Format("{0}/{1}", baseDestUrl, imageFileName).Replace(" ", "+");
 
             using (WebClient webClient = new WebClient())
@@ -82,9 +119,9 @@ namespace InvalidTrackHandler
                 }
                 else
                 {
-                    using (Stream invalidStream = new MemoryStream(webClient.DownloadData(track.SourceTrackUrl)))
+                    using (var fileStream = new FileStream(zipFile, FileMode.Open))
                     {
-                        var uploadTask = AwsS3Utility.UploadFileAsync(invalidStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
+                        var uploadTask = AwsS3Utility.UploadFileAsync(fileStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
                         uploadTask.Wait();
                     }
                 }
