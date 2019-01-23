@@ -10,7 +10,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReflexUtility", "Reflex-Uti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackManagerUpdater", "TrackManagerUpdater\TrackManagerUpdater.csproj", "{4470BF01-C888-4F02-A324-F736E463E41A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvalidTrackHandler", "InvalidTrackHandler\InvalidTrackHandler.csproj", "{3C2D6141-9A25-49D4-8044-C87B14C231EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvalidTrackHandler", "InvalidTrackHandler\InvalidTrackHandler.csproj", "{3C2D6141-9A25-49D4-8044-C87B14C231EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BeginPollingReflexCentral", "Lambdas\BeginPollingReflexCentral\BeginPollingReflexCentral.csproj", "{CFCAA6EF-8DA8-4764-9392-0F7188B8D531}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lambdas", "Lambdas", "{E4EC6B2A-012E-4656-ABBD-090D027D6AD7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PollReflexCentralForNewTracks", "Lambdas\PollReflexCentralForNewTracks\PollReflexCentralForNewTracks.csproj", "{DF4A21BA-B498-475A-9EDC-94C36701F9B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PollReflexCentralForNewTracks.Tests", "Lambdas\PollReflexCentralForNewTracks.Tests\PollReflexCentralForNewTracks.Tests.csproj", "{0AC3E788-515D-4CF3-A5B6-2ADD6AF5F8FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3DC6471E-FCC4-4DA3-9E8A-B470F1DF951E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reflex-Central", "Reflex-Central", "{9DDAA4D9-3334-459E-B359-2E22E87EF10E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadReflexTrackToS3", "Lambdas\UploadReflexTrackToS3\UploadReflexTrackToS3.csproj", "{04F8ABAC-878E-4383-ABF7-82FC5E6BFED6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadReflexTrackToS3.Tests", "Lambdas\UploadReflexTrackToS3.Tests\UploadReflexTrackToS3.Tests.csproj", "{ABEAA437-C2CA-4C20-9A98-34FFCF8EC5E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,9 +54,38 @@ Global
 		{3C2D6141-9A25-49D4-8044-C87B14C231EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C2D6141-9A25-49D4-8044-C87B14C231EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C2D6141-9A25-49D4-8044-C87B14C231EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFCAA6EF-8DA8-4764-9392-0F7188B8D531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFCAA6EF-8DA8-4764-9392-0F7188B8D531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFCAA6EF-8DA8-4764-9392-0F7188B8D531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFCAA6EF-8DA8-4764-9392-0F7188B8D531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF4A21BA-B498-475A-9EDC-94C36701F9B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF4A21BA-B498-475A-9EDC-94C36701F9B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF4A21BA-B498-475A-9EDC-94C36701F9B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF4A21BA-B498-475A-9EDC-94C36701F9B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AC3E788-515D-4CF3-A5B6-2ADD6AF5F8FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AC3E788-515D-4CF3-A5B6-2ADD6AF5F8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AC3E788-515D-4CF3-A5B6-2ADD6AF5F8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AC3E788-515D-4CF3-A5B6-2ADD6AF5F8FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04F8ABAC-878E-4383-ABF7-82FC5E6BFED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04F8ABAC-878E-4383-ABF7-82FC5E6BFED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04F8ABAC-878E-4383-ABF7-82FC5E6BFED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04F8ABAC-878E-4383-ABF7-82FC5E6BFED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABEAA437-C2CA-4C20-9A98-34FFCF8EC5E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABEAA437-C2CA-4C20-9A98-34FFCF8EC5E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABEAA437-C2CA-4C20-9A98-34FFCF8EC5E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABEAA437-C2CA-4C20-9A98-34FFCF8EC5E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CFCAA6EF-8DA8-4764-9392-0F7188B8D531} = {9DDAA4D9-3334-459E-B359-2E22E87EF10E}
+		{DF4A21BA-B498-475A-9EDC-94C36701F9B5} = {9DDAA4D9-3334-459E-B359-2E22E87EF10E}
+		{0AC3E788-515D-4CF3-A5B6-2ADD6AF5F8FB} = {3DC6471E-FCC4-4DA3-9E8A-B470F1DF951E}
+		{3DC6471E-FCC4-4DA3-9E8A-B470F1DF951E} = {E4EC6B2A-012E-4656-ABBD-090D027D6AD7}
+		{9DDAA4D9-3334-459E-B359-2E22E87EF10E} = {E4EC6B2A-012E-4656-ABBD-090D027D6AD7}
+		{04F8ABAC-878E-4383-ABF7-82FC5E6BFED6} = {E4EC6B2A-012E-4656-ABBD-090D027D6AD7}
+		{ABEAA437-C2CA-4C20-9A98-34FFCF8EC5E0} = {3DC6471E-FCC4-4DA3-9E8A-B470F1DF951E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {187EF8B8-016C-4644-8572-BF5875098EEC}
