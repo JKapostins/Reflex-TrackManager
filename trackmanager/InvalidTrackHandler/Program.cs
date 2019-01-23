@@ -33,7 +33,15 @@ namespace InvalidTrackHandler
                         MultipleTracksPerZipHandler handler = new MultipleTracksPerZipHandler(zipsPendingProcessingDirectory);
                         invalidTracks.AddRange(handler.SeperateTracks(multipleTracks));
                     }
+                }
 
+                { //Handle multiple tracks
+                    var slot8Tracks = invalidTracks.Where(t => t.ErrorInfo == "Unknown slot; ").ToArray();
+                    if (slot8Tracks.Length > 0)
+                    {
+                        Slot8Handler handler = new Slot8Handler(zipsPendingProcessingDirectory);
+                        handler.ProcessTracks(slot8Tracks);
+                    }
                 }
 
                 TrackProcessor trackProcessor = new TrackProcessor();

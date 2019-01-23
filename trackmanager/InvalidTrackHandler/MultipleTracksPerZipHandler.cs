@@ -23,11 +23,11 @@ namespace InvalidTrackHandler
             {
                 //download the invalid track file
                 var trackFileName = string.Format(@"{0}\{1}{2}", m_stagingDirectory, track.TrackName.Trim(), Path.GetExtension(track.TrackUrl)).Replace("+", " ");
-                //using (WebClient client = new WebClient())
-                //{
-                //    Console.WriteLine(string.Format("Downloading {0}", track.TrackUrl));
-                //    client.DownloadFile(track.TrackUrl, trackFileName);
-                //}
+                using (WebClient client = new WebClient())
+                {
+                    Console.WriteLine(string.Format("Downloading {0}", track.TrackUrl));
+                    client.DownloadFile(track.TrackUrl, trackFileName);
+                }
 
                 var splitTracks = SplitTracks(track, trackFileName);
                 if (splitTracks.Length > 0)

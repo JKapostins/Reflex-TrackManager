@@ -67,6 +67,7 @@ namespace InvalidTrackHandler
         {
             //Reset to the defaults before re-processing the track
             track.ErrorInfo = string.Empty;
+            track.TrackType = TrackType.Unknown;
             track.Valid = true;
             string thumbnailDownloadPath = track.SourceThumbnailUrl;
             string folderName = track.TrackName;
