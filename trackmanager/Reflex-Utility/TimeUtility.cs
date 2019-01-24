@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TrackManager
+namespace ReflexUtility
 {
     public static class TimeUtility
     {
