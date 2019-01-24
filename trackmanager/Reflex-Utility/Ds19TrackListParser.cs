@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Net.Http;
 
 namespace ReflexUtility
 {
@@ -94,7 +95,7 @@ namespace ReflexUtility
             {
                 //Some hrefs contain the full path, others partial paths...
                 var href = trackDataNode.Attributes["href"].Value.Replace(baseUrl, string.Empty);
-                track.SourceTrackUrl = string.Format("{0}/{1}", baseUrl, href).Replace("//", "/");
+                track.SourceTrackUrl = GetFinalUrl(string.Format("{0}/{1}", baseUrl, href));
             }
             else
             {
@@ -102,7 +103,7 @@ namespace ReflexUtility
                 trackDataNode = doc.DocumentNode.SelectSingleNode("//*[@id='dllink2']/a[1]");
                 if(trackDataNode != null)
                 {
-                    track.SourceTrackUrl = string.Format("{0}/{1}", baseUrl, trackDataNode.Attributes["href"].Value);
+                    track.SourceTrackUrl = GetFinalUrl(string.Format("{0}/{1}", baseUrl, trackDataNode.Attributes["href"].Value));
                 }
                 else
                 {
@@ -139,6 +140,48 @@ namespace ReflexUtility
             return track;
         }
 
+        //Most of the urls cause a redirect, this gets us the final url that we are being redirected to.
+        private string GetFinalUrl(string url)
+        {
+            HttpClient client = new HttpClient();
+            var task = client.GetAsync(url);
+            task.Wait();
+            HttpResponseMessage response = task.Result;
+            response.EnsureSuccessStatusCode();
+            return response.RequestMessage.RequestUri.ToString();
+        }
+
+        public bool MakeRequest(string url)
+        {
+            using (var client = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip }))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(url),
+                    Method = HttpMethod.Get
+                };
+
+                HttpResponseMessage response = client.SendAsync(request).Result;
+                var statusCode = (int)response.StatusCode;
+
+                // We want to handle redirects ourselves so that we can determine the final redirect Location (via header)
+                if (statusCode >= 300 && statusCode <= 399)
+                {
+                    var redirectUri = response.Headers.Location;
+                    if (!redirectUri.IsAbsoluteUri)
+                    {
+                        redirectUri = new Uri(request.RequestUri.GetLeftPart(UriPartial.Authority) + redirectUri);
+                    }
+                    return MakeRequest(redirectUri.ToString());
+                }
+                else if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception();
+                }
+
+                return true;
+            }
+        }
         private void LazyInitTrackNodes()
         {
             if (m_trackNodes == null)

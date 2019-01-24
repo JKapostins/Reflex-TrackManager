@@ -13,11 +13,17 @@ namespace ReflexUtility
 
         public Track ValidateTrack(Track track, ZipFileEntryDelegate zipHandler)
         {
+            
             string ext = Path.GetExtension(track.SourceTrackUrl);
             //We can only run automation on zip files. .rar is a closed format and not accepted.
             if (ext == ".zip")
             {
                 track = PeekZipFile(track.SourceTrackUrl, track, zipHandler);
+            }
+            else if (track.SourceTrackUrl.Contains("drive.google.com"))
+            {
+                track.ErrorInfo += string.Format("Files are saved on google drive which is not supported; ", ext);
+                track.Valid = false;
             }
             else
             {
