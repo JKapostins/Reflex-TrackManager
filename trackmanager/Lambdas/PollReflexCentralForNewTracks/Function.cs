@@ -9,7 +9,7 @@ namespace PollReflexCentralForNewTracks
 {
     public class Function
     {
-        
+
         /// <summary>
         /// A simple function that takes a string and does a ToUpper
         /// </summary>
@@ -18,16 +18,8 @@ namespace PollReflexCentralForNewTracks
         /// <returns></returns>
         public void FunctionHandler(Amazon.Lambda.SQSEvents.SQSEvent sqsEvent, ILambdaContext context)
         {
-            try
-            {                
-                PollTracks.Poll(sqsEvent, context, false);
-            }
-            catch (Exception e)
-            {
-                context.Logger.LogLine(e.Message);
-                context.Logger.LogLine(e.StackTrace);
-            }
+            PollTracks.Poll(sqsEvent, context, false);
         }
-        
+
     }
 }

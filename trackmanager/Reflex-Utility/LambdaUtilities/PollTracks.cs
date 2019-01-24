@@ -63,7 +63,7 @@ namespace ReflexUtility
                 else
                 {
                     context.Logger.LogLine(string.Format("No track found at id {0}", trackId));
-                }                
+                }
                 ++trackId;
             }
 

@@ -12,7 +12,7 @@
     "framework"     : "netcoreapp2.1",
     "function-runtime" : "dotnetcore2.1",
     "function-memory-size" : 128,
-    "function-timeout"     : 30,
+    "function-timeout"     : 300,
     "function-handler"     : "BeginPollingReflexCentral::BeginPollingReflexCentral.Function::FunctionHandler",
     "function-name"        : "BeginPollingReflexCentral",
     "function-description" : "",

@@ -76,16 +76,44 @@ namespace ReflexUtility
                 }
             }
 
-            //All the tracks on reflex central seem to have a space after the name.
-            var sourceUrl = string.Format("http://reflex-central.com/tracks/{0} ", trackName);
+            //The data files have various formats, this addresses all of the current ones.
+            var sourceUrl = string.Empty;
+            string[] variations = new string[]
+            {
+                string.Format("http://reflex-central.com/tracks/{0}", trackName), // trimmed track name
+                string.Format("http://reflex-central.com/tracks/{0}", trackNameNode.InnerHtml), // untrimmed track name
+                string.Format("http://reflex-central.com/tracks/ {0}", trackName), // trimmed track name with space in front
+                string.Format("http://reflex-central.com/tracks/ {0}", trackNameNode.InnerHtml), // untrimmedtrimmed track name with space in front
+                string.Format("http://reflex-central.com/tracks/{0} ", trackName), // trimmed track name with space after
+                string.Format("http://reflex-central.com/tracks/{0} ", trackNameNode.InnerHtml) // untrimmedtrimmed track name with space after
+            };
 
-            if (FileExistsOnServer(sourceUrl + ".zip"))
+            string[] fileExtensions = new string[]
             {
-                sourceUrl += ".zip";
+                ".zip",
+                ".rar"
+            };
+
+            foreach(var downloadPath in variations)
+            {
+                foreach(var ext in fileExtensions)
+                {
+                    if(FileExistsOnServer(downloadPath + ext))
+                    {
+                        sourceUrl = downloadPath + ext;
+                        break;
+                    }
+                }
+
+                if(sourceUrl.Length > 0)
+                {
+                    break;
+                }
             }
-            else if (FileExistsOnServer(sourceUrl + ".rar"))
+
+            if(sourceUrl == string.Empty)
             {
-                sourceUrl += ".rar";
+                throw new Exception(string.Format("Unable to find data for {0} at {1}", trackName, url));
             }
 
             Track track = new Track

@@ -1,4 +1,6 @@
 using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Newtonsoft.Json;
@@ -17,79 +19,82 @@ namespace UploadReflexTrackToS3
     {
         public void FunctionHandler(SQSEvent sqsEvent, ILambdaContext context)
         {
-            try
+            if (sqsEvent.Records.Count != 1)
             {
-                if (sqsEvent.Records.Count != 1)
+                throw new Exception(string.Format("Recived {0} records to process. Only 1 is supported.", sqsEvent.Records.Count));
+            }
+
+            var track = JsonConvert.DeserializeObject<Track>(sqsEvent.Records[0].Body);
+            if (track == null)
+            {
+                throw new Exception("There was an error parsing the lambda input");
+            }
+
+            TrackValidator validator = new TrackValidator();
+            MemoryStream zipStream = new MemoryStream();
+            ZipArchive zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, true);
+
+            context.Logger.LogLine(string.Format("Beginning to process {0}", track.TrackName));
+            track = validator.ValidateTrack(track, (e) =>
+            {
+                var destFile = zipArchive.CreateEntry(e.Name);
+
+                using (var destStream = destFile.Open())
+                using (var srcStream = e.Open())
                 {
-                    throw new Exception(string.Format("Recived {0} records to process. Only 1 is supported.", sqsEvent.Records.Count));
+                    var task = srcStream.CopyToAsync(destStream);
+                    task.Wait();
+                }
+            });
+            zipArchive.Dispose();
+            zipStream.Position = 0;
+
+
+            string folderName = track.TrackName;
+            string imageFileName = track.TrackName + ".jpg";
+            string trackFileName = track.TrackName + Path.GetExtension(track.SourceTrackUrl);
+            bool googleDrive = track.SourceTrackUrl.Contains("drive.google.com");
+
+            string bucketName = track.Valid ? "reflextracks" : "invalidreflextracks";
+            string baseDestUrl = string.Format("https://s3.amazonaws.com/{0}/{1}", bucketName, folderName).Replace(" ", "+");
+
+            track.TrackUrl = string.Format("{0}/{1}", baseDestUrl, trackFileName).Replace(" ", "+");
+            if (googleDrive)
+            {
+                track.TrackUrl = track.SourceTrackUrl;
+            }
+            track.ThumbnailUrl = string.Format("{0}/{1}", baseDestUrl, imageFileName).Replace(" ", "+");
+
+
+            using (WebClient client = new WebClient())
+            {
+                using (Stream thumbNailStream = new MemoryStream(client.DownloadData(track.SourceThumbnailUrl)))
+                {
+                    var uploadTask = AwsS3Utility.UploadFileAsync(thumbNailStream, string.Format("{0}/{1}", bucketName, folderName), imageFileName, RegionEndpoint.USEast1);
+                    uploadTask.Wait();
                 }
 
-                var track = JsonConvert.DeserializeObject<Track>(sqsEvent.Records[0].Body);
-                if (track == null)
+                if (track.Valid)
                 {
-                    throw new Exception("There was an error parsing the lambda input");
+                    var uploadTask = AwsS3Utility.UploadFileAsync(zipStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
+                    uploadTask.Wait();
                 }
-
-                TrackValidator validator = new TrackValidator();
-                MemoryStream zipStream = new MemoryStream();
-                ZipArchive zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, true);
-
-                context.Logger.LogLine(string.Format("Beginning to process {0}", track.TrackName));
-                track = validator.ValidateTrack(track, (e) =>
+                else if (googleDrive == false) //no support for downloading data directly from google drive
                 {
-                    var destFile = zipArchive.CreateEntry(e.Name);
-
-                    using (var destStream = destFile.Open())
-                    using (var srcStream = e.Open())
+                    context.Logger.LogLine(string.Format("Attempting to copy {0} to invalid track bucket.", track.SourceTrackUrl));
+                    using (Stream invalidStream = new MemoryStream(client.DownloadData(track.SourceTrackUrl)))
                     {
-                        var task = srcStream.CopyToAsync(destStream);
-                        task.Wait();
-                    }
-                });
-                zipArchive.Dispose();
-                zipStream.Position = 0;
-
-                string folderName = Path.GetFileNameWithoutExtension(track.SourceTrackUrl.Replace("%20", " "));
-                string imageFileName = Path.GetFileName(track.SourceThumbnailUrl).Replace("%20", " ");
-                string trackFileName = Path.GetFileName(track.SourceTrackUrl).Replace("%20", " ");
-                string bucketName = track.Valid ? "reflextracks" : "invalidreflextracks";
-                string baseDestUrl = string.Format("https://s3.amazonaws.com/{0}/{1}", bucketName, folderName).Replace(" ", "+");
-
-                track.TrackUrl = string.Format("{0}/{1}", baseDestUrl, trackFileName).Replace(" ", "+");
-                track.ThumbnailUrl = string.Format("{0}/{1}", baseDestUrl, imageFileName).Replace(" ", "+");
-
-                using (WebClient client = new WebClient())
-                {
-                    using (Stream thumbNailStream = new MemoryStream(client.DownloadData(track.SourceThumbnailUrl)))
-                    {
-                        var uploadTask = AwsS3Utility.UploadFileAsync(thumbNailStream, string.Format("{0}/{1}", bucketName, folderName), imageFileName, RegionEndpoint.USEast1);
+                        var uploadTask = AwsS3Utility.UploadFileAsync(invalidStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
                         uploadTask.Wait();
                     }
-
-                    if (track.Valid)
-                    {
-                        var uploadTask = AwsS3Utility.UploadFileAsync(zipStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
-                        uploadTask.Wait();
-                    }
-                    else
-                    {
-                        using (Stream invalidStream = new MemoryStream(client.DownloadData(track.SourceTrackUrl)))
-                        {
-                            var uploadTask = AwsS3Utility.UploadFileAsync(invalidStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
-                            uploadTask.Wait();
-                        }
-                    }
                 }
-
-                track.FixEmptyStrings();
-                var success = HttpUtility.Post("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks", track);
-
-                context.Logger.LogLine(string.Format("Processing {0} is complete!", track.TrackName));
             }
-            catch (Exception e)
-            {
-                context.Logger.LogLine(e.Message);
-            }
+
+            track.FixEmptyStrings();
+            var dynamoContext = new DynamoDBContext(new AmazonDynamoDBClient(RegionEndpoint.USEast1));
+            dynamoContext.SaveAsync(track).Wait();
+
+            context.Logger.LogLine(string.Format("Processing {0} is complete!", track.TrackName));
         }
     }
 }

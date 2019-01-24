@@ -9,7 +9,7 @@ namespace BeginPollingReflexCentral
 {
     public class Function
     {
-        
+
         /// <summary>
         /// A simple function that takes a string and does a ToUpper
         /// </summary>
@@ -18,15 +18,7 @@ namespace BeginPollingReflexCentral
         /// <returns></returns>
         public void FunctionHandler(ILambdaContext context)
         {
-            try
-            {
-                PollTracks.Poll(null, context, true);
-            }
-            catch (Exception e)
-            {
-                context.Logger.LogLine(e.Message);
-                context.Logger.LogLine(e.StackTrace);
-            }
+            PollTracks.Poll(null, context, true);
         }
     }
 }

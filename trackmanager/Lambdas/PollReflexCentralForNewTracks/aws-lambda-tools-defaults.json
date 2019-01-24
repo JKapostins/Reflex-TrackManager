@@ -12,7 +12,7 @@
     "framework"     : "netcoreapp2.1",
     "function-runtime" : "dotnetcore2.1",
     "function-memory-size" : 128,
-    "function-timeout"     : 30,
+    "function-timeout"     : 300,
     "function-handler"     : "PollReflexCentralForNewTracks::PollReflexCentralForNewTracks.Function::FunctionHandler",
     "function-name"        : "PollReflexCentralForNewTracks",
     "function-role"        : "arn:aws:iam::809015461931:role/LambdaS3",
