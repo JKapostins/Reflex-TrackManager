@@ -28,16 +28,16 @@ void OverlayKernel::render(LPDIRECT3DDEVICE9 device)
 
 	m_trackSelection->render(device);
 
-	ImGui::SetNextWindowPos(ImVec2(976, 295), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(934, 244), ImGuiCond_FirstUseEver);	
+	ImGui::SetNextWindowPos(ImVec2(976, 295), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(934, 244), ImGuiCond_Always);
 	m_installedNationals->render();
 
-	ImGui::SetNextWindowPos(ImVec2(976, 541), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(934, 244), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(976, 541), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(934, 244), ImGuiCond_Always);
 	m_installedSupercross->render();
 
-	ImGui::SetNextWindowPos(ImVec2(1444, 49), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(466, 244), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(1444, 49), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(466, 244), ImGuiCond_Always);
 	m_installedFreeRide->render();
 
 	m_sharedTracks->render();
@@ -51,8 +51,8 @@ void OverlayKernel::setVisibility(bool visible)
 
 void OverlayKernel::drawHelp()
 {
-	ImGui::SetNextWindowPos(ImVec2(733,12), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(374, 24), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(733,12), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(374, 24), ImGuiCond_Always);
 	ImGui::SetNextWindowBgAlpha(0.3f); // Transparent background
 	if (ImGui::Begin("ToggleHelp", nullptr,   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
 	{

@@ -28,7 +28,7 @@ void InstalledTracks::render()
 		m_selectedTrackName = installedTracks[0].name();
 	}
 
-	if (ImGui::Begin(windowTitle, nullptr))
+	if (ImGui::Begin(windowTitle, nullptr, ImGuiWindowFlags_NoResize))
 	{
 		drawTable(installedTracks);
 

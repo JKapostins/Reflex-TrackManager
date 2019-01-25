@@ -66,7 +66,7 @@ TrackSelection::~TrackSelection()
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
 	ImGui::SetNextWindowSize(ImVec2(960, 982), ImGuiCond_Always);
-	ImGui::SetNextWindowPos(ImVec2(10, 49), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(10, 49), ImGuiCond_Always);
 	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize))
 	{
 		static int previousTrackTypeIndex = 0;
