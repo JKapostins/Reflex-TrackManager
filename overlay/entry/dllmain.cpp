@@ -145,7 +145,7 @@ void EvtIndiciumD3D9PreEndScene(
 
 	}, pDevice);
 
-	if (!initialized)
+	if (!initialized || reflexOverlay == nullptr)
 		return;
 
 	TOGGLE_STATE(VK_F11, show_overlay);
@@ -164,7 +164,10 @@ void EvtIndiciumD3D9PreReset(
 	D3DPRESENT_PARAMETERS   *pPresentationParameters
 )
 {
-	reflexOverlay->invalidateDeviceObjects();
+	if (reflexOverlay != nullptr)
+	{
+		reflexOverlay->invalidateDeviceObjects();
+	}
 	ImGui_ImplDX9_InvalidateDeviceObjects();
 }
 
@@ -174,7 +177,10 @@ void EvtIndiciumD3D9PostReset(
 )
 {
 	ImGui_ImplDX9_CreateDeviceObjects();
-	reflexOverlay->createDeviceObjects(pDevice);
+	if (reflexOverlay != nullptr)
+	{
+		reflexOverlay->createDeviceObjects(pDevice);
+	}
 }
 
 void EvtIndiciumD3D9PresentEx(
@@ -214,7 +220,7 @@ void EvtIndiciumD3D9PresentEx(
 
 	}, pDevice);
 
-	if (!initialized)
+	if (!initialized || reflexOverlay == nullptr)
 		return;
 
 	TOGGLE_STATE(VK_F11, show_overlay);
@@ -307,8 +313,6 @@ LRESULT WINAPI DetourDefWindowProc(
 	_In_ LPARAM lParam
 )
 {
-	ImGui_ImplWin32_WndProcHandler(hWnd, Msg, wParam, lParam);
-
 	return OriginalDefWindowProc(hWnd, Msg, wParam, lParam);
 }
 
@@ -320,6 +324,12 @@ LRESULT WINAPI DetourWindowProc(
 )
 {
 	ImGui_ImplWin32_WndProcHandler(hWnd, Msg, wParam, lParam);
+	
+	//Don't send any input to the game if the overlay is visible.
+	if (reflexOverlay != nullptr && reflexOverlay->getVisibility())
+	{
+		return true;
+	}
 
 	return OriginalWindowProc(hWnd, Msg, wParam, lParam);
 }
@@ -450,5 +460,4 @@ IMGUI_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wPa
 	}
 	return 0;
 }
-
 #pragma endregion

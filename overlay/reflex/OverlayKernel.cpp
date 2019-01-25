@@ -15,6 +15,7 @@ OverlayKernel::OverlayKernel()
 	, m_installedSupercross(std::make_unique<InstalledTracks>(m_trackManagementClient, "Supercross"))
 	, m_installedFreeRide(std::make_unique<InstalledTracks>(m_trackManagementClient, "FreeRide"))
 	, m_sharedTracks(std::make_unique<SharedTracks>(m_trackManagementClient))
+	, m_overlayVisible(false)
 {
 }
 
@@ -46,6 +47,7 @@ void OverlayKernel::render(LPDIRECT3DDEVICE9 device)
 
 void OverlayKernel::setVisibility(bool visible)
 {
+	m_overlayVisible = visible;
 	m_trackManagementClient->setOverlayVisible(visible);
 }
 
