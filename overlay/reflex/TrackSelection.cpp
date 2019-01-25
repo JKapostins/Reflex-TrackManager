@@ -199,23 +199,27 @@ void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tr
 	ImGui::Text("My Installs"); ImGui::NextColumn();
 	ImGui::Text("Favorite");  ImGui::NextColumn();
 	ImGui::Separator();
-
-	for (auto& track : tracks)
+	ImGuiListClipper clipper(tracks.size());
+	while (clipper.Step())
 	{
-		if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
+		for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
 		{
-			m_selectedTrackName = track.name();
-		}
-		bool hovered = ImGui::IsItemHovered();
-		ImGui::NextColumn();
+			auto& track = tracks[i];
+			if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
+			{
+				m_selectedTrackName = track.name();
+			}
+			bool hovered = ImGui::IsItemHovered();
+			ImGui::NextColumn();
 
-		ImGui::Text("%d", track.slot()); ImGui::NextColumn();
-		ImGui::Text(track.type().c_str()); ImGui::NextColumn();
-		ImGui::Text(track.author().c_str()); ImGui::NextColumn();
-		ImGui::Text(track.date().c_str()); ImGui::NextColumn();
-		ImGui::Text("%d", track.installs()); ImGui::NextColumn();
-		ImGui::Text("%d", track.myinstalls()); ImGui::NextColumn();
-		ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
+			ImGui::Text("%d", track.slot()); ImGui::NextColumn();
+			ImGui::Text(track.type().c_str()); ImGui::NextColumn();
+			ImGui::Text(track.author().c_str()); ImGui::NextColumn();
+			ImGui::Text(track.date().c_str()); ImGui::NextColumn();
+			ImGui::Text("%d", track.installs()); ImGui::NextColumn();
+			ImGui::Text("%d", track.myinstalls()); ImGui::NextColumn();
+			ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
+		}
 	}
 	ImGui::EndChild();
 }
