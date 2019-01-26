@@ -13,7 +13,7 @@ TrackManagementClient::~TrackManagementClient()
 	//delete m_stub;
 }
 
-std::vector<trackmanagement::Track> TrackManagementClient::getTracks(const trackmanagement::TrackRequest& request) const
+trackmanagement::TrackResponse TrackManagementClient::getTracks(const trackmanagement::TrackRequest& request) const
 {
 	trackmanagement::TrackResponse reply;
 	grpc::ClientContext context;
@@ -21,17 +21,7 @@ std::vector<trackmanagement::Track> TrackManagementClient::getTracks(const track
 
 	grpc::Status status = m_stub->GetTracks(&context, request, &reply);
 
-	if (status.ok())
-	{
-		auto trackResponse = reply.tracks();
-		tracks.reserve(trackResponse.size());
-
-		for (auto& track : trackResponse)
-		{
-			tracks.push_back(track);
-		}
-	}
-	return tracks;
+	return reply;
 }
 
 std::vector<trackmanagement::Track> TrackManagementClient::getInstalledTracks(const trackmanagement::InstalledTrackRequest& request) const
@@ -114,6 +104,21 @@ std::string TrackManagementClient::getInstallStatus() const
 	}
 
 	return installStatus;
+}
+
+int TrackManagementClient::getTrackCount(const trackmanagement::SortRequest& request) const
+{
+	trackmanagement::NumberMessage reply;
+	grpc::ClientContext context;
+	int count = 0;
+
+	grpc::Status status = m_stub->GetTrackCount(&context, request, &reply);
+	if (status.ok())
+	{
+		count = reply.value();
+	}
+
+	return count;
 }
 
 void TrackManagementClient::installRandomNationals()

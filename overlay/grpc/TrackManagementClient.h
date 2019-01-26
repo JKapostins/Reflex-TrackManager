@@ -8,11 +8,12 @@ class TrackManagementClient
  public:
 	 TrackManagementClient(std::shared_ptr<grpc::Channel> channel);
 	 ~TrackManagementClient();
-	 std::vector<trackmanagement::Track> getTracks(const trackmanagement::TrackRequest& request) const;
+	 trackmanagement::TrackResponse getTracks(const trackmanagement::TrackRequest& request) const;
 	 std::vector<trackmanagement::Track> getInstalledTracks(const trackmanagement::InstalledTrackRequest& request) const;
 	 std::vector<trackmanagement::SharedTrackList> getSharedTracks() const;
 	 std::vector<trackmanagement::LogMessage> getLogMessages() const;
 	 std::string getInstallStatus() const;
+	 int getTrackCount(const trackmanagement::SortRequest& request) const;
 	 void installRandomNationals();
 	 void installRandomSupercross();
 	 void installRandomFreeRides();

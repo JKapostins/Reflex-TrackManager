@@ -19,79 +19,32 @@ namespace TrackManager
 
         public override Task<Trackmanagement.TrackResponse> GetTracks(Trackmanagement.TrackRequest request, ServerCallContext context)
         {
-            Trackmanagement.Track[] tracks = tracks = Reflex.GetTracks().Select(t => new Trackmanagement.Track
-            {
-                Name = t.TrackName,
-                Type = t.TrackType,
-                Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
-                Author = t.Author,
-                Slot = t.SlotNumber,
-                Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
-                Installs = t.RatingVoteCount,
-                MyInstalls = GetMyInstalls(t.TrackName),
-                Favorite = GetFavorite(t.TrackName),
+            var tracks = FilterAndSortTracks(request.Sorting);
 
-            }).ToArray();
-
-            if (request.TrackType != "All Track Types")
+            int trackCount = request.EndIndex - request.StartIndex;
+            Trackmanagement.Track[] trackSubset = new Trackmanagement.Track[trackCount];
+            Array.Copy(tracks, request.StartIndex, trackSubset, 0, trackCount);
+            Trackmanagement.Track firstTrackInList = null;
+            if(tracks.Length > 0)
             {
-                tracks = tracks.Where(t => t.Type == request.TrackType).ToArray();
-            }
-
-            if (request.Slot != "All Slots")
-            {
-                int slot = Convert.ToInt32(request.Slot);
-                tracks = tracks.Where(t => t.Slot == slot).ToArray();
-            }
-
-            switch(request.SortBy)
-            {
-                case "Name":
-                    {
-                        tracks = tracks.OrderBy(t => t.Name).ToArray();
-                        break;
-                    }
-                case "Slot":
-                    {
-                        tracks = tracks.OrderBy(t => t.Slot).ToArray();
-                        break;
-                    }
-                case "Type":
-                    {
-                        tracks = tracks.OrderBy(t => t.Type).ToArray();
-                        break;
-                    }
-                case "Author":
-                    {
-                        tracks = tracks.OrderBy(t => t.Author).ToArray();
-                        break;
-                    }
-                case "Date Created":
-                    {
-                        tracks = tracks.OrderBy(t => t.Date).ToArray();
-                        break;
-                    }
-                case "Installs":
-                    {
-                        tracks = tracks.OrderByDescending(t => t.Installs).ToArray();
-                        break;
-                    }
-                case "My Installs":
-                    {
-                        tracks = tracks.OrderByDescending(t => t.MyInstalls).ToArray();
-                        break;
-                    }
-                case "Favorite":
-                    {
-                        tracks = tracks.OrderByDescending(t => t.Favorite).ToArray();
-                        break;
-                    }
+                firstTrackInList = tracks[0];
             }
             return Task.FromResult(new Trackmanagement.TrackResponse
             {
-                Tracks = { tracks }
+                FirstTrackInList = firstTrackInList,
+                Tracks = { trackSubset }
             });
         }
+
+        public override Task<Trackmanagement.NumberMessage> GetTrackCount(Trackmanagement.SortRequest request, ServerCallContext context)
+        {
+            int trackCount = FilterTracks(request).Length;
+            return Task.FromResult(new Trackmanagement.NumberMessage
+            {
+                Value = trackCount
+            });
+        }
+
         public override Task<Trackmanagement.InstallStatusResponse> GetInstallStatus(Trackmanagement.Empty request, ServerCallContext context)
         {
             return Task.FromResult(new Trackmanagement.InstallStatusResponse
@@ -195,26 +148,70 @@ namespace TrackManager
             });
         }
 
-        private bool GetFavorite(string trackName)
+        private Trackmanagement.Track[] FilterTracks(Trackmanagement.SortRequest request)
         {
-            bool favorite = false;
-            var localTrack = LocalSettings.GetTracks().Where(t => t.Name == trackName).SingleOrDefault();
-            if(localTrack != null)
-            {
-                favorite = localTrack.Favorite;
-            }
-            return favorite;
-        }
+            var tracks = Reflex.GetDisplayTracks();
 
-        private int GetMyInstalls(string trackName)
-        {
-            int installs = 0;
-            var localTrack = LocalSettings.GetTracks().Where(t => t.Name == trackName).SingleOrDefault();
-            if (localTrack != null)
+            if (request.TrackType != "All Track Types")
             {
-                installs = localTrack.MyDownloads;
+                tracks = tracks.Where(t => t.Type == request.TrackType).ToArray();
             }
-            return installs;
+
+            if (request.Slot != "All Slots")
+            {
+                int slot = Convert.ToInt32(request.Slot);
+                tracks = tracks.Where(t => t.Slot == slot).ToArray();
+            }
+            return tracks;
+        }
+        private Trackmanagement.Track[] FilterAndSortTracks(Trackmanagement.SortRequest request)
+        {
+            var tracks = FilterTracks(request);
+
+            switch (request.SortBy)
+            {
+                case "Name":
+                    {
+                        tracks = tracks.OrderBy(t => t.Name).ToArray();
+                        break;
+                    }
+                case "Slot":
+                    {
+                        tracks = tracks.OrderBy(t => t.Slot).ToArray();
+                        break;
+                    }
+                case "Type":
+                    {
+                        tracks = tracks.OrderBy(t => t.Type).ToArray();
+                        break;
+                    }
+                case "Author":
+                    {
+                        tracks = tracks.OrderBy(t => t.Author).ToArray();
+                        break;
+                    }
+                case "Date Created":
+                    {
+                        tracks = tracks.OrderBy(t => t.Date).ToArray();
+                        break;
+                    }
+                case "Installs":
+                    {
+                        tracks = tracks.OrderByDescending(t => t.Installs).ToArray();
+                        break;
+                    }
+                case "My Installs":
+                    {
+                        tracks = tracks.OrderByDescending(t => t.MyInstalls).ToArray();
+                        break;
+                    }
+                case "Favorite":
+                    {
+                        tracks = tracks.OrderByDescending(t => t.Favorite).ToArray();
+                        break;
+                    }
+            }
+            return tracks;
         }
     }
 }

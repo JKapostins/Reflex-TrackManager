@@ -6,6 +6,7 @@ service TrackManager {
 
   rpc GetLogMessages (Empty) returns (LogResponse) {}
   rpc GetTracks (TrackRequest) returns (TrackResponse) {}
+  rpc GetTrackCount (SortRequest) returns (NumberMessage) {}
   rpc GetInstallStatus (Empty) returns (InstallStatusResponse) {}
   rpc GetInstalledTracks (InstalledTrackRequest) returns (TrackResponse) {}
   rpc InstallRandomNationals (Empty) returns (Empty) {}
@@ -19,10 +20,20 @@ service TrackManager {
   rpc SetOverlayVisible (ToggleMessage) returns (Empty) {}
 }
 
-message TrackRequest {
+message NumberMessage{
+	int32 value = 1;
+}
+
+message SortRequest {
 	string trackType = 1;
 	string slot = 2;
 	string sortBy = 3;
+}
+
+message TrackRequest {
+	int32 startIndex = 1;
+	int32 endIndex = 2;
+	SortRequest sorting = 3;
 }
 
 message ToggleMessage {
@@ -30,7 +41,8 @@ message ToggleMessage {
 }
 
 message TrackResponse {
-  repeated Track tracks = 1;
+	Track firstTrackInList = 1;
+	repeated Track tracks = 2;
 }
 
 message SharedTrackResponse {

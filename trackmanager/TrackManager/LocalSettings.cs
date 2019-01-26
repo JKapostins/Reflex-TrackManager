@@ -95,6 +95,8 @@ namespace TrackManager
                     });
                 }
             }
+
+            Reflex.FlushDisplayTracks();
         }
 
         public static void ToggleFavorite(string trackName)
@@ -129,6 +131,8 @@ namespace TrackManager
                     SaveTracks();
                 }
             }
+
+            Reflex.FlushDisplayTracks();
         }
 
         private static List<LocalTrack> m_tracks = new List<LocalTrack>();

@@ -17,6 +17,24 @@ namespace TrackManager
             {
                 m_tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
             }
+
+            lock(m_displayTrackLocker)
+            {
+                m_displayTracks = GetTracks().Select(t => new Trackmanagement.Track
+                {
+                    Name = t.TrackName,
+                    Type = t.TrackType,
+                    Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
+                    Author = t.Author,
+                    Slot = t.SlotNumber,
+                    Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
+                    Installs = t.RatingVoteCount,
+                    MyInstalls = GetMyInstalls(t.TrackName),
+                    Favorite = GetFavorite(t.TrackName),
+
+                }).ToArray();
+            }
+
             m_uiFiles = new string[]
             {
                   "MXTables_DLC008.dx9.database"
@@ -122,7 +140,7 @@ namespace TrackManager
 
         public void Process()
         {
-            ProcessOverlayInjection();
+            //ProcessOverlayInjection();
             TrackInstaller.ProcessDownloadQueue();
             Sharing.Process();
             PollTracks();
@@ -156,6 +174,14 @@ namespace TrackManager
             }
         }
 
+        public static Trackmanagement.Track[] GetDisplayTracks()
+        {
+            lock (m_displayTrackLocker)
+            {
+                return m_displayTracks;
+            }
+        }
+
         public static bool OverlayIsVisible()
         {
             lock(m_overlayLocker)
@@ -173,6 +199,24 @@ namespace TrackManager
                 {
                     m_tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
                 }
+
+                lock(m_displayTrackLocker)
+                {
+                    m_displayTracks = GetTracks().Select(t => new Trackmanagement.Track
+                    {
+                        Name = t.TrackName,
+                        Type = t.TrackType,
+                        Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
+                        Author = t.Author,
+                        Slot = t.SlotNumber,
+                        Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
+                        Installs = t.RatingVoteCount,
+                        MyInstalls = GetMyInstalls(t.TrackName),
+                        Favorite = GetFavorite(t.TrackName),
+
+                    }).ToArray();
+                }
+
                 m_nextTrackPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + TrackPollTimeInSeconds;
             }
         }
@@ -352,12 +396,55 @@ namespace TrackManager
         }
         #endregion
 
+        public static void FlushDisplayTracks()
+        {
+            lock(m_displayTrackLocker)
+            {
+                m_displayTracks = GetTracks().Select(t => new Trackmanagement.Track
+                {
+                    Name = t.TrackName,
+                    Type = t.TrackType,
+                    Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
+                    Author = t.Author,
+                    Slot = t.SlotNumber,
+                    Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
+                    Installs = t.RatingVoteCount,
+                    MyInstalls = GetMyInstalls(t.TrackName),
+                    Favorite = GetFavorite(t.TrackName),
+
+                }).ToArray();
+            }
+        }
+        private static bool GetFavorite(string trackName)
+        {
+            bool favorite = false;
+            var localTrack = LocalSettings.GetTracks().Where(t => t.Name == trackName).SingleOrDefault();
+            if (localTrack != null)
+            {
+                favorite = localTrack.Favorite;
+            }
+            return favorite;
+        }
+
+        private static int GetMyInstalls(string trackName)
+        {
+            int installs = 0;
+            var localTrack = LocalSettings.GetTracks().Where(t => t.Name == trackName).SingleOrDefault();
+            if (localTrack != null)
+            {
+                installs = localTrack.MyDownloads;
+            }
+            return installs;
+        }
+
         private static Track[] m_tracks;
+        private static Trackmanagement.Track[] m_displayTracks;
         private static bool m_overlayVisible = false;
         private bool m_reflexWasRunningLastFrame;
         private long m_nextTrackPollTime;
         private const int TrackPollTimeInSeconds = 60*5; //five minutes
         private static readonly object m_trackLocker = new object();
+        private static readonly object m_displayTrackLocker = new object();
         private static readonly object m_overlayLocker = new object();
         private const string ReflexNameInSteam = "MX vs. ATV Reflex";
         private readonly string[] m_uiFiles;

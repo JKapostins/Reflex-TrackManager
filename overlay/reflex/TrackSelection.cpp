@@ -73,55 +73,30 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 		static int previousSlotTypeIndex = 0;
 		static int previousSortByIndex = 0;
 
-		trackmanagement::TrackRequest request;
-		request.set_tracktype(g_trackTypeComboItems[m_trackTypeFilterIndex]);
-		request.set_slot(g_slotComboItems[m_slotFilterIndex]);
-		request.set_sortby(g_sortByComboItems[m_sortByIndex]);
+		m_previouslySelectedTrackName = m_selectedTrackName;
 
-
-		//GNARLY_TODO: try realtime updating back by implementing ImGuiListClipper.
-		//This will allow us to fetch only the small amount of data we are currently viewing on screen. It will also save on memory costs
-		const int TrackRefreshRate = 10; //seconds
-		using namespace std::chrono;
-		seconds currentTime = duration_cast<seconds>(system_clock::now().time_since_epoch());
-		if (currentTime.count() > m_lastTimeStamp)
-		{
-			m_allTracks = m_trackManagementClient->getTracks(request);
-			m_lastTimeStamp = currentTime.count() + TrackRefreshRate;
-		}
-
-		
 		//Select first track in list anytime there is a change in the track list
 		if (m_trackTypeFilterIndex != previousTrackTypeIndex
 			|| m_slotFilterIndex != previousSlotTypeIndex
 			|| m_sortByIndex != previousSortByIndex)
 		{
-			m_allTracks = m_trackManagementClient->getTracks(request);
-			if (m_allTracks.size() > 0)
+			if (m_firstTrackInList.name().size() > 0)
 			{
-				m_selectedTrackName = m_allTracks[0].name();
-				m_selectedTrack = m_allTracks[0];
+				m_selectedTrackName = m_firstTrackInList.name();
+				m_selectedTrack = m_firstTrackInList;
 			}
 			previousTrackTypeIndex = m_trackTypeFilterIndex;
 			previousSlotTypeIndex = m_slotFilterIndex;
 			previousSortByIndex = m_sortByIndex;
 		}
-		else if (m_allTracks.size() == 0)
-		{
-			m_allTracks = m_trackManagementClient->getTracks(request);
-		}
-
-
 
 		drawPreviewImage(device, m_selectedTrack);
-		
-		
 		drawComboBoxes();
-		drawTableBody(m_allTracks);
+		drawTableBody();
 		
 		std::string selected = m_selectedTrackName;
-		auto trackIter = std::find_if(m_allTracks.begin(), m_allTracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
-		if (trackIter != m_allTracks.end())
+		auto trackIter = std::find_if(m_visibleTracks.begin(), m_visibleTracks.end(), [&selected](const trackmanagement::Track& obj) {return obj.name() == selected; });
+		if (trackIter != m_visibleTracks.end())
 		{
 			m_selectedTrack = *trackIter;
 			if (m_previouslySelectedTrackName != m_selectedTrackName)
@@ -134,7 +109,6 @@ void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 
 	}
 	ImGui::End();
-	m_previouslySelectedTrackName = m_selectedTrackName;
 }
 
 void TrackSelection::drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanagement::Track& selected)
@@ -180,7 +154,7 @@ void TrackSelection::drawComboBoxes()
 	ImGui::EndChild();
 }
 
-void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tracks)
+void TrackSelection::drawTableBody()
 {
 	static float height = 34.0f;
 	static float tableWidth = 1024.0f;
@@ -199,26 +173,40 @@ void TrackSelection::drawTableBody(const std::vector<trackmanagement::Track>& tr
 	ImGui::Text("My Installs"); ImGui::NextColumn();
 	ImGui::Text("Favorite");  ImGui::NextColumn();
 	ImGui::Separator();
-	ImGuiListClipper clipper(tracks.size());
+	float itemsHeight = 17; // This was found by running the clipper in the debugger and looking at the clipper state in step 3.
+
+	trackmanagement::SortRequest* sortInfo = new trackmanagement::SortRequest();
+	sortInfo->set_tracktype(g_trackTypeComboItems[m_trackTypeFilterIndex]);
+	sortInfo->set_slot(g_slotComboItems[m_slotFilterIndex]);
+	sortInfo->set_sortby(g_sortByComboItems[m_sortByIndex]);
+	int trackCount = m_trackManagementClient->getTrackCount(*sortInfo);
+
+	ImGuiListClipper clipper(trackCount, itemsHeight);
 	while (clipper.Step())
 	{
-		for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-		{
-			auto& track = tracks[i];
-			if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
-			{
-				m_selectedTrackName = track.name();
-			}
-			bool hovered = ImGui::IsItemHovered();
-			ImGui::NextColumn();
+		//populate visible tracks, grpc deletes SortRequest passed in
+		flushVisibleTracks(sortInfo, clipper.DisplayStart, clipper.DisplayEnd);
 
-			ImGui::Text("%d", track.slot()); ImGui::NextColumn();
-			ImGui::Text(track.type().c_str()); ImGui::NextColumn();
-			ImGui::Text(track.author().c_str()); ImGui::NextColumn();
-			ImGui::Text(track.date().c_str()); ImGui::NextColumn();
-			ImGui::Text("%d", track.installs()); ImGui::NextColumn();
-			ImGui::Text("%d", track.myinstalls()); ImGui::NextColumn();
-			ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
+		for (int i = clipper.DisplayStart, j = 0; i < clipper.DisplayEnd; ++i, ++j)
+		{
+			if (j < m_visibleTracks.size())
+			{
+				auto& track = m_visibleTracks[j];
+				if (ImGui::Selectable(track.name().c_str(), m_selectedTrackName == track.name(), ImGuiSelectableFlags_SpanAllColumns))
+				{
+					m_selectedTrackName = track.name();
+				}
+				bool hovered = ImGui::IsItemHovered();
+				ImGui::NextColumn();
+
+				ImGui::Text("%d", track.slot()); ImGui::NextColumn();
+				ImGui::Text(track.type().c_str()); ImGui::NextColumn();
+				ImGui::Text(track.author().c_str()); ImGui::NextColumn();
+				ImGui::Text(track.date().c_str()); ImGui::NextColumn();
+				ImGui::Text("%d", track.installs()); ImGui::NextColumn();
+				ImGui::Text("%d", track.myinstalls()); ImGui::NextColumn();
+				ImGui::Text(track.favorite() ? "true" : "false"); ImGui::NextColumn();
+			}
 		}
 	}
 	ImGui::EndChild();
@@ -385,4 +373,30 @@ LPDIRECT3DTEXTURE9 TrackSelection::createTextureFromFile(LPDIRECT3DDEVICE9 devic
 		tjFree(imgBuf);
 	}
 	return d3dTexture;
+}
+
+//GPRC is expecting memory on the heap, pass sortInfo into this function on the heap and GRPC will take ownership of it and delete it when its done.
+void TrackSelection::flushVisibleTracks(trackmanagement::SortRequest* sortInfo, int displayStart, int displayEnd)
+{
+	trackmanagement::TrackRequest request;
+	request.set_allocated_sorting(sortInfo);
+	request.set_startindex(displayStart);
+	request.set_endindex(displayEnd);
+	trackmanagement::TrackResponse response = m_trackManagementClient->getTracks(request);
+	m_firstTrackInList = response.firsttrackinlist();
+
+	auto trackResponse = response.tracks();
+	m_visibleTracks.clear();
+	m_visibleTracks.reserve(trackResponse.size());
+
+	for (auto& track : trackResponse)
+	{
+		m_visibleTracks.push_back(track);
+	}
+
+	if (m_selectedTrackName.size() == 0)
+	{
+		m_selectedTrack = m_firstTrackInList;
+		m_selectedTrackName = m_firstTrackInList.name();
+	}
 }
