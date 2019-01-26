@@ -140,7 +140,7 @@ namespace TrackManager
 
         public void Process()
         {
-            //ProcessOverlayInjection();
+            ProcessOverlayInjection();
             TrackInstaller.ProcessDownloadQueue();
             Sharing.Process();
             PollTracks();

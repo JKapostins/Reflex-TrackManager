@@ -15,7 +15,7 @@ OverlayKernel::OverlayKernel()
 	, m_installedSupercross(std::make_unique<InstalledTracks>(m_trackManagementClient, "Supercross"))
 	, m_installedFreeRide(std::make_unique<InstalledTracks>(m_trackManagementClient, "FreeRide"))
 	, m_sharedTracks(std::make_unique<SharedTracks>(m_trackManagementClient))
-	, m_overlayVisible(false)
+	, m_overlayVisible(true)
 {
 }
 

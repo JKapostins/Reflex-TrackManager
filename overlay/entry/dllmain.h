@@ -34,6 +34,7 @@ void RenderScene(LPDIRECT3DDEVICE9 device);
 
 bool ImGui_ImplWin32_UpdateMouseCursor();
 IMGUI_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+bool keyDown(int key);
 
 EVT_INDICIUM_GAME_HOOKED EvtIndiciumGameHooked;
 EVT_INDICIUM_GAME_UNHOOKED EvtIndiciumGameUnhooked;

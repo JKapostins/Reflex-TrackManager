@@ -12,7 +12,6 @@ t_WindowProc OriginalWindowProc = nullptr;
 PINDICIUM_ENGINE engine = nullptr;
 
 std::unique_ptr<OverlayKernel> reflexOverlay = nullptr;
-
 void initializeClient()
 {
 	reflexOverlay = std::make_unique<OverlayKernel>();
@@ -119,7 +118,6 @@ void EvtIndiciumD3D9PreEndScene(
 )
 {
 	static auto initialized = false;
-	static bool show_overlay = true;
 	static std::once_flag init;
 
 	//
@@ -148,10 +146,11 @@ void EvtIndiciumD3D9PreEndScene(
 	if (!initialized || reflexOverlay == nullptr)
 		return;
 
-	TOGGLE_STATE(VK_F11, show_overlay);
-	reflexOverlay->setVisibility(show_overlay);
+	bool visible = reflexOverlay->getVisibility();
+	TOGGLE_STATE(VK_F11, visible);
+	reflexOverlay->setVisibility(visible);
 
-	if (!show_overlay) 
+	if (!visible)
 		return;
 
 	ImGui_ImplDX9_NewFrame();
@@ -193,7 +192,6 @@ void EvtIndiciumD3D9PresentEx(
 )
 {
 	static auto initialized = false;
-	static bool show_overlay = true;
 	static std::once_flag init;
 
 	//
@@ -223,10 +221,11 @@ void EvtIndiciumD3D9PresentEx(
 	if (!initialized || reflexOverlay == nullptr)
 		return;
 
-	TOGGLE_STATE(VK_F11, show_overlay);
-	reflexOverlay->setVisibility(show_overlay);
+	bool visible = reflexOverlay->getVisibility();
+	TOGGLE_STATE(VK_F11, visible);
+	reflexOverlay->setVisibility(visible);
 
-	if (!show_overlay) 
+	if (!visible)
 		return;
 
 	ImGui_ImplDX9_NewFrame();
@@ -323,6 +322,11 @@ LRESULT WINAPI DetourWindowProc(
 	_In_ LPARAM lParam
 )
 {
+	if (keyDown(VK_MENU) && keyDown(VK_TAB))
+	{
+		reflexOverlay->setVisibility(false);
+	}
+
 	ImGui_ImplWin32_WndProcHandler(hWnd, Msg, wParam, lParam);
 	
 	//Don't send any input to the game if the overlay is visible.
@@ -459,5 +463,10 @@ IMGUI_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wPa
 		return 0;
 	}
 	return 0;
+}
+
+bool keyDown(int key)
+{
+	return (GetAsyncKeyState(key) & 0x8000) != 0;
 }
 #pragma endregion
