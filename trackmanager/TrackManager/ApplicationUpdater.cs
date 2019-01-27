@@ -51,6 +51,6 @@ namespace TrackManager
         }
 
         private string m_activeVersion;
-        private const string Version = "0.6";
+        private const string Version = "0.7.101";
     }
 }
