@@ -322,7 +322,10 @@ LRESULT WINAPI DetourWindowProc(
 	_In_ LPARAM lParam
 )
 {
-	if (keyDown(VK_MENU) && keyDown(VK_TAB))
+	// Hide the overlay and return input back to the game if
+	// the user tries to alt+tab or alt+f4
+	if ((keyDown(VK_MENU) && keyDown(VK_TAB))
+		|| (keyDown(VK_MENU) && keyDown(VK_F4)))
 	{
 		reflexOverlay->setVisibility(false);
 	}
