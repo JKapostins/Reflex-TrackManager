@@ -18,23 +18,6 @@ namespace TrackManager
                 m_tracks = HttpUtility.Get<Track[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/tracks?validation=valid");
             }
 
-            lock(m_displayTrackLocker)
-            {
-                m_displayTracks = GetTracks().Select(t => new Trackmanagement.Track
-                {
-                    Name = t.TrackName,
-                    Type = t.TrackType,
-                    Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
-                    Author = t.Author,
-                    Slot = t.SlotNumber,
-                    Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
-                    Installs = t.RatingVoteCount,
-                    MyInstalls = GetMyInstalls(t.TrackName),
-                    Favorite = GetFavorite(t.TrackName),
-
-                }).ToArray();
-            }
-
             m_uiFiles = new string[]
             {
                   "MXTables_DLC008.dx9.database"
@@ -78,6 +61,22 @@ namespace TrackManager
                 Directory.CreateDirectory(LocalSettingsPath);
             }
 
+            lock (m_displayTrackLocker)
+            {
+                m_displayTracks = GetTracks().Select(t => new Trackmanagement.Track
+                {
+                    Name = t.TrackName,
+                    Type = t.TrackType,
+                    Image = string.Format("{0}\\{1}{2}", Reflex.LocalImagePath, t.TrackName, Path.GetExtension(t.ThumbnailUrl)).Replace("\\", "/"),
+                    Author = t.Author,
+                    Slot = t.SlotNumber,
+                    Date = TimeUtility.UnixTimeStampToString(t.CreationTime),
+                    Installs = t.RatingVoteCount,
+                    MyInstalls = GetMyInstalls(t.TrackName),
+                    Favorite = GetFavorite(t.TrackName),
+
+                }).ToArray();
+            }
             Console.WriteLine("Detected Mx vs Atv Reflex install path: " + InstallPath);
 
             if (BetaSlotsInstalled() == false)
