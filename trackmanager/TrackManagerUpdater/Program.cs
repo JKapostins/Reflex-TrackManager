@@ -50,9 +50,10 @@ namespace TrackManagerUpdater
                 using (var client = new WebClient())
                 {
                     string zipFile = string.Format("https://s3.amazonaws.com/reflextrackmanager/{0}/{1}", version, trackManagerZip);
-                    Console.WriteLine("Updating track manager to version " + version);
+                    Console.WriteLine(string.Format("Downloading update v{0}. Please wait...", version));
                     using (Stream memoryStream = new MemoryStream(client.DownloadData(zipFile)))
                     {
+                        Console.WriteLine("Beginning installation... ");
                         using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Read))
                         {
                             foreach (ZipArchiveEntry entry in archive.Entries)
@@ -64,6 +65,7 @@ namespace TrackManagerUpdater
                     }
                 }
 
+                Console.WriteLine("Updating version in registry... ");
                 //Update the version that appears in add / remove programs
                 RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{2783D510-E6BF-4618-A40A-E7BCE45DFCCC}_is1", true);
                 if (key != null)
@@ -88,7 +90,7 @@ namespace TrackManagerUpdater
                 info.FileName = "TrackManager.exe";
                 Process.Start(info);
 
-                Console.WriteLine("Track manager updated!");
+                Console.WriteLine("Update complete!");
             }
             catch(Exception e)
             {
