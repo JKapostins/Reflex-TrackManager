@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using ImageMagick;
 using Newtonsoft.Json;
 using ReflexUtility;
 using System;
@@ -68,10 +69,21 @@ namespace UploadReflexTrackToS3
 
             using (WebClient client = new WebClient())
             {
+                context.Logger.LogLine(string.Format("Attempting to load {0}", track.SourceThumbnailUrl));
                 using (Stream thumbNailStream = new MemoryStream(client.DownloadData(track.SourceThumbnailUrl)))
                 {
-                    var uploadTask = AwsS3Utility.UploadFileAsync(thumbNailStream, string.Format("{0}/{1}", bucketName, folderName), imageFileName, RegionEndpoint.USEast1);
-                    uploadTask.Wait();
+                    using (var jpegStream = new MemoryStream())
+                    {
+                        context.Logger.LogLine(string.Format("Ensuring {0} is a jpg file and resizing it to 640 x 360.", track.SourceThumbnailUrl));
+                        MagickImage sourceImage = new MagickImage(thumbNailStream);
+                        sourceImage.Resize(640, 360);
+                        sourceImage.Write(jpegStream, MagickFormat.Jpg);
+                        jpegStream.Position = 0;
+
+                        context.Logger.LogLine(string.Format("Uploading {0} to s3.", track.ThumbnailUrl));
+                        var uploadTask = AwsS3Utility.UploadFileAsync(jpegStream, string.Format("{0}/{1}", bucketName, folderName), imageFileName, RegionEndpoint.USEast1);
+                        uploadTask.Wait();
+                    }
                 }
 
                 if (track.Valid)

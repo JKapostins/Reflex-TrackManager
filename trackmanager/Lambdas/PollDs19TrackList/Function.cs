@@ -10,7 +10,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-
+using ImageMagick;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
@@ -27,101 +27,38 @@ namespace PollDs19TrackList
         /// <returns></returns>
         public void FunctionHandler(ILambdaContext context)
         {
+            context.Logger.LogLine("Checking Ds19's track website for new tracks...");
             Ds19TrackListParser parser = new Ds19TrackListParser();
             var ds19TrackNames = parser.GetTrackNames();
             var gnarlyTrackNames = TrackDataUtility.GetThirdPartyTrackNames();
             var newTrackNames = ds19TrackNames.Except(gnarlyTrackNames).ToArray();
 
-            List<Track> newTracks = new List<Track>();
-            foreach(var newTrack in newTrackNames)
+            foreach (var newTrack in newTrackNames)
             {
-                //GNARLY_TODO: remove the ignored tracks when DS Fixes his site.
-                if (newTrack != "High Point")
+                //GNARLY_TODO: Get DS to fix these
+                if (newTrack == "2016 Las Vegas SX"
+                    || newTrack == "2017 Monster Energy Cup")
                 {
-                    var parsedTrack = parser.ParseTrack(newTrack);
-                    if (parsedTrack != null)
-                    {
-                        newTracks.Add(parsedTrack);
-                    }
+                    continue;
+                }
+
+                context.Logger.LogLine(string.Format("Attempting to parse new track ({0})", newTrack));
+                
+                var parsedTrack = parser.ParseTrack(newTrack);
+                if (parsedTrack != null)
+                {
+                    context.Logger.LogLine(string.Format("Sending new track ({0}) to be prcoessed by UploadReflexTrackToS3 lambda.", parsedTrack.TrackName));
+                    HttpUtility.Post("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/processtrack", parsedTrack);
                 }
             }
 
-            //GNARLY_TODO: send sqs event to UploadReflexTrackToS3 instead of doing this here.
-            foreach (var newTrack in newTracks)
+            if (newTrackNames.Length > 0)
             {
-                var track = newTrack;
-                TrackValidator validator = new TrackValidator();
-                MemoryStream zipStream = new MemoryStream();
-                ZipArchive zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, true);
-
-                context.Logger.LogLine(string.Format("Beginning to process {0}", track.TrackName));
-                track = validator.ValidateTrack(track, (e) =>
-                {
-                    var destFile = zipArchive.CreateEntry(e.Name);
-
-                    using (var destStream = destFile.Open())
-                    using (var srcStream = e.Open())
-                    {
-                        var task = srcStream.CopyToAsync(destStream);
-                        task.Wait();
-                    }
-                });
-                zipArchive.Dispose();
-                zipStream.Position = 0;
-
-
-                string folderName = track.TrackName;
-                string imageFileName = track.TrackName + ".jpg";
-                string trackFileName = track.TrackName + Path.GetExtension(track.SourceTrackUrl);
-                bool googleDrive = track.SourceTrackUrl.Contains("drive.google.com");
-
-                string bucketName = track.Valid ? "reflextracks" : "invalidreflextracks";
-                string baseDestUrl = string.Format("https://s3.amazonaws.com/{0}/{1}", bucketName, folderName).Replace(" ", "+");
-
-                track.TrackUrl = string.Format("{0}/{1}", baseDestUrl, trackFileName).Replace(" ", "+");
-                if (googleDrive)
-                {
-                    track.TrackUrl = track.SourceTrackUrl;
-                }
-                track.ThumbnailUrl = string.Format("{0}/{1}", baseDestUrl, imageFileName).Replace(" ", "+");
-
-
-                track.FixEmptyStrings();
-                var dynamoContext = new DynamoDBContext(new AmazonDynamoDBClient(RegionEndpoint.USEast1));
-                dynamoContext.SaveAsync(track).Wait();
-
-                using (WebClient client = new WebClient())
-                {
-                    using (Stream thumbNailStream = new MemoryStream(client.DownloadData(track.SourceThumbnailUrl)))
-                    {
-                        using (var jpegStream = new MemoryStream())
-                        {
-                            Image sourceImage = Image.FromStream(thumbNailStream);
-                            sourceImage = ImageExtension.ResizeImage(sourceImage, 640, 360);
-                            sourceImage.Save(jpegStream, System.Drawing.Imaging.ImageFormat.Jpeg);
-                            jpegStream.Position = 0;
-
-                            var uploadTask = AwsS3Utility.UploadFileAsync(jpegStream, string.Format("{0}/{1}", bucketName, folderName), imageFileName, RegionEndpoint.USEast1);
-                            uploadTask.Wait();
-                        }
-                    }
-
-                    if (track.Valid)
-                    {
-                        var uploadTask = AwsS3Utility.UploadFileAsync(zipStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
-                        uploadTask.Wait();
-                    }
-                    else if (googleDrive == false) //no support for downloading data directly from google drive
-                    {
-                        using (Stream invalidStream = new MemoryStream(client.DownloadData(track.SourceTrackUrl)))
-                        {
-                            var uploadTask = AwsS3Utility.UploadFileAsync(invalidStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
-                            uploadTask.Wait();
-                        }
-                    }
-                }
-
-                context.Logger.LogLine(string.Format("Processing {0} is complete!", track.TrackName));
+                context.Logger.LogLine("Parsing new tracks complete!");
+            }
+            else
+            {
+                context.Logger.LogLine("No new tracks found.");
             }
         }
     }
