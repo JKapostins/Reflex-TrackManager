@@ -102,11 +102,11 @@ namespace TrackManager
 
         public override Task<Trackmanagement.SharedTrackResponse> GetSharedTracks(Trackmanagement.Empty request, ServerCallContext context)
         {
-            var lists = Sharing.GetSharedTracks().Where(t => TimeUtility.Expired(t.CreationTime, Sharing.LifeSpanMinutes) == false).Select(t => new Trackmanagement.SharedTrackList
+            var lists = Sharing.GetSharedTracks().Where(t => TimeUtility.Expired(t.CreationTime, TrackSharing.LifeSpanMinutes) == false).Select(t => new Trackmanagement.SharedTrackList
             {
                 Name = t.Name,
                 Type = t.Type,
-                Expires = TimeUtility.TimeToExpire(t.CreationTime, Sharing.LifeSpanMinutes)
+                Expires = TimeUtility.TimeToExpire(t.CreationTime, TrackSharing.LifeSpanMinutes)
 
             })
             .OrderByDescending(t => t.Expires)

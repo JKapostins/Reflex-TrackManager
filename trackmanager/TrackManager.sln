@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PollDs19TrackList.Tests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ds19", "Ds19", "{00B4E88D-1D1D-4DE1-BE8F-BE17DB77245F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeleteExpiredTrackSetsFromDb", "Lambdas\DeleteExpiredTrackSetsFromDb\DeleteExpiredTrackSetsFromDb.csproj", "{3B123871-6CA9-452A-9EC9-363E944C8A2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{1A987859-819E-4266-8C44-8BFE7AEA6646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A987859-819E-4266-8C44-8BFE7AEA6646}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A987859-819E-4266-8C44-8BFE7AEA6646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B123871-6CA9-452A-9EC9-363E944C8A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B123871-6CA9-452A-9EC9-363E944C8A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B123871-6CA9-452A-9EC9-363E944C8A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B123871-6CA9-452A-9EC9-363E944C8A2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{17914F9E-CB50-4F12-AA58-1A51394A1778} = {00B4E88D-1D1D-4DE1-BE8F-BE17DB77245F}
 		{1A987859-819E-4266-8C44-8BFE7AEA6646} = {3DC6471E-FCC4-4DA3-9E8A-B470F1DF951E}
 		{00B4E88D-1D1D-4DE1-BE8F-BE17DB77245F} = {E4EC6B2A-012E-4656-ABBD-090D027D6AD7}
+		{3B123871-6CA9-452A-9EC9-363E944C8A2C} = {E4EC6B2A-012E-4656-ABBD-090D027D6AD7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {187EF8B8-016C-4644-8572-BF5875098EEC}

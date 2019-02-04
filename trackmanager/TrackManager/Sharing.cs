@@ -41,7 +41,7 @@ namespace TrackManager
                         var endTime = TimeUtility.UnixTimeStampToDateTime(m_shareRateLimiter[trackType]);
                         TimeSpan ts = endTime.Subtract(DateTime.UtcNow);
                         Log.Add(Trackmanagement.LogMessageType.LogWarning, string.Format("Share failed. You can share each track type once every {0} seconds.\n" +
-                            " You will be able to share your {1} tracks again in {2} seconds", ShareRateLimitInSeconds, trackType, (int)ts.TotalSeconds));
+                            " You will be able to share your {1} tracks again in {2} seconds", TrackSharing.ShareRateLimitInSeconds, trackType, (int)ts.TotalSeconds));
                     }
                 }
                 else
@@ -105,7 +105,7 @@ namespace TrackManager
                 {
                     m_sharedTracks = HttpUtility.Get<SharedReflexTracks[]>("https://spptqssmj8.execute-api.us-east-1.amazonaws.com/test/share");
                 }
-                m_nextPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + ServerPollingRateInSeconds;
+                m_nextPollTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + TrackSharing.ServerPollingRateInSeconds;
             }
         }
 
@@ -133,7 +133,7 @@ namespace TrackManager
                     if (success)
                     {
                         Log.Add(Trackmanagement.LogMessageType.LogInfo, string.Format("Uploaded your {0} tracks as '{1}'. Tell your party to install it from the Shared Tracks Window.", trackType, trackSetName));
-                        long nextShareTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + ShareRateLimitInSeconds;
+                        long nextShareTime = TimeUtility.DateTimeToUnixTimeStamp(DateTime.UtcNow) + TrackSharing.ShareRateLimitInSeconds;
                         m_shareRateLimiter[trackType] = nextShareTime;
                     }
                     else
@@ -153,10 +153,6 @@ namespace TrackManager
                 ExceptionLogger.LogException(e);
             }
         }
-
-        public const int LifeSpanMinutes = 5;
-        public const int ServerPollingRateInSeconds = 2;
-        public const int ShareRateLimitInSeconds = 60;
 
         private static ConcurrentQueue<string> m_uploadQueue = new ConcurrentQueue<string>();
         private static SharedReflexTracks[] m_sharedTracks;
