@@ -1,4 +1,6 @@
 # Reflex-TrackManager
+[![Discord](https://img.shields.io/discord/229269561365626883.svg)](https://discord.gg/RkezKw2)
+
 Manage custom tracks for MX vs ATV Reflex with this in-game overlay
 ![Screenshot](docs/images/cover.png)
 
