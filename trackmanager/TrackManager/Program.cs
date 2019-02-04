@@ -23,6 +23,7 @@ namespace TrackManager
                 reflex.ValidateInstallation();
                 reflex.DownloadImages();
                 LocalSettings.Load();
+                reflex.InitializeTrackList();
                 reflex.InstallRandomTracksOnFirstRun();
 
                 var managementService = new TrackManagementService();

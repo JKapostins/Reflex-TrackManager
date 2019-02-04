@@ -61,6 +61,21 @@ namespace TrackManager
                 Directory.CreateDirectory(LocalSettingsPath);
             }
 
+            Console.WriteLine("Detected Mx vs Atv Reflex install path: " + InstallPath);
+
+            if (BetaSlotsInstalled() == false)
+            {
+                Console.WriteLine("Installing beta slots...");
+                InstallBetaSlots();
+                Console.WriteLine("Beta slots install complete.");
+            }
+            else
+            {
+                Console.WriteLine("Beta slots already installed.");
+            }
+        }
+        public void InitializeTrackList()
+        {
             lock (m_displayTrackLocker)
             {
                 m_displayTracks = GetTracks().Select(t => new Trackmanagement.Track
@@ -76,18 +91,6 @@ namespace TrackManager
                     Favorite = GetFavorite(t.TrackName),
 
                 }).ToArray();
-            }
-            Console.WriteLine("Detected Mx vs Atv Reflex install path: " + InstallPath);
-
-            if (BetaSlotsInstalled() == false)
-            {
-                Console.WriteLine("Installing beta slots...");
-                InstallBetaSlots();
-                Console.WriteLine("Beta slots install complete.");
-            }
-            else
-            {
-                Console.WriteLine("Beta slots already installed.");
             }
         }
 
