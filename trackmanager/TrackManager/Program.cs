@@ -26,27 +26,42 @@ namespace TrackManager
                 reflex.InitializeTrackList();
                 reflex.InstallRandomTracksOnFirstRun();
 
-                var managementService = new TrackManagementService();
-                Server server = new Server
+                if (args.Length == 0)
                 {
-                    Services = { Trackmanagement.TrackManager.BindService(managementService) },
-                    Ports = { new ServerPort("localhost", Port, ServerCredentials.Insecure) }
-                };
-                server.Start();
+                    var managementService = new TrackManagementService();
+                    Server server = new Server
+                    {
+                        Services = { Trackmanagement.TrackManager.BindService(managementService) },
+                        Ports = { new ServerPort("localhost", Port, ServerCredentials.Insecure) }
+                    };
+                    server.Start();
 
-                Console.WriteLine("Track management server listening on port " + Port);
+                    Console.WriteLine("Track management server listening on port " + Port);
 
-                if(System.Diagnostics.Process.GetProcessesByName("MXReflex").Length == 0)
-                {
-                    Console.WriteLine("Waiting for you to launch MX vs. ATV Reflex...");
+                    if (System.Diagnostics.Process.GetProcessesByName("MXReflex").Length == 0)
+                    {
+                        Console.WriteLine("Waiting for you to launch MX vs. ATV Reflex...");
+                    }
+
+                    while (true)
+                    {
+                        reflex.Process();
+                    }
                 }
-
-                while (true)
+                else
                 {
-                    reflex.Process();
+                    if(args.Length == 1 && args[0] == "-downloadalltracks")
+                    {
+                        reflex.DownloadAllTracks();
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine(string.Format("Invalid arguments provided to application ({0})", string.Join(",", args)));
+                        Console.WriteLine("Usage:");
+                        Console.WriteLine("\t-Normal execution mode (UI Overlay): TrackManager.exe");
+                        Console.WriteLine("\t-Download all tracks mode: TrackManager.exe -downloadalltracks");
+                    }
                 }
-
-                server.ShutdownAsync().Wait();
             }
             catch(Exception e)
             {

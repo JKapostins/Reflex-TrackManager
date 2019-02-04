@@ -120,6 +120,35 @@ namespace TrackManager
             }
         }
 
+        public void DownloadAllTracks()
+        {
+            string[] serverTracks = null;
+            lock (m_trackLocker)
+            {
+                serverTracks = m_tracks.Select(t => t.TrackName.Trim()).ToArray();
+            }
+
+            var localTracks = GetTrackFilesOnDisk();
+            var newTracks = serverTracks.Except(localTracks).ToArray();
+
+            if(newTracks.Length > 0)
+            {
+                Console.WriteLine($"Detected {newTracks.Length} tracks that aren't downloaded.");
+                Console.WriteLine("Beginning to download tracks...");
+                for(int i = 0; i < newTracks.Length; ++i)
+                {
+                    string trackName = newTracks[i];
+                    Console.WriteLine($"Downloading track {i + 1}/{newTracks.Length}: {trackName}");
+                    TrackInstaller.DownloadTrack(trackName);
+                }
+                Console.WriteLine("Track installation complete!");
+            }
+            else
+            {
+                Console.WriteLine("No new tracks to download. Re-run TrackManager.exe without the '-downloadalltracks' flag.");
+            }
+        }
+
         public void InstallRandomTracksOnFirstRun()
         {
             if(LocalSettings.TrackSettingsExist() == false)
@@ -151,6 +180,12 @@ namespace TrackManager
         public static string[] GetImageFilesOnDisk()
         {
             var files = Directory.GetFiles(LocalImagePath);
+            return files.Select(t => Path.GetFileNameWithoutExtension(t.Trim())).ToArray();
+        }
+
+        public static string[] GetTrackFilesOnDisk()
+        {
+            var files = Directory.GetFiles(LocalTrackPath);
             return files.Select(t => Path.GetFileNameWithoutExtension(t.Trim())).ToArray();
         }
 

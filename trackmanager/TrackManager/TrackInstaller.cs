@@ -224,7 +224,7 @@ namespace TrackManager
 
         }
 
-        private static string DownloadTrack(string trackName)
+        public static string DownloadTrack(string trackName)
         {
             string path = string.Empty;
             try
