@@ -1,7 +1,7 @@
 #include "Log.h"
 #include "grpc/TrackManagementClient.h"
 #include "imgui/imgui.h"
-
+#include "GameWindow.h"
 
 struct LogImpl
 {
@@ -27,8 +27,6 @@ struct LogImpl
 
 	void    Draw(const char* title, bool* p_open = NULL)
 	{
-		ImGui::SetNextWindowSize(ImVec2(934, 244), ImGuiCond_Always);
-		ImGui::SetNextWindowPos(ImVec2(976, 787), ImGuiCond_Always);
 		if (!ImGui::Begin(title, p_open, ImGuiWindowFlags_NoResize))
 		{
 			ImGui::End();
@@ -98,5 +96,8 @@ void Log::render()
 
 		log.AddLog("[%s] %s\n", messageType, message.message().c_str());
 	}
+	
+	ImGui::SetNextWindowSize(game_window::ScaleWindowSize(ImVec2(934, 244), m_trackManagementClient->getGameWindowRect()), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(game_window::ScaleWindowSize(ImVec2(976, 787), m_trackManagementClient->getGameWindowRect()), ImGuiCond_Always);
 	log.Draw("Log", nullptr);
 }

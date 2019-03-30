@@ -21,6 +21,8 @@ entry/dllmain.h
 )
 
 set(reflexFiles
+reflex/GameWindow.h
+reflex/GameWindow.cpp
 reflex/Log.h
 reflex/Log.cpp
 reflex/InstalledTracks.h

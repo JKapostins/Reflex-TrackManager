@@ -12,9 +12,9 @@ t_WindowProc OriginalWindowProc = nullptr;
 PINDICIUM_ENGINE engine = nullptr;
 
 std::unique_ptr<OverlayKernel> reflexOverlay = nullptr;
-void initializeClient()
+void initializeClient(int width, int height)
 {
-	reflexOverlay = std::make_unique<OverlayKernel>();
+	reflexOverlay = std::make_unique<OverlayKernel>(width, height);
 }
 
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
@@ -137,7 +137,17 @@ void EvtIndiciumD3D9PreEndScene(
 		ImGui_ImplDX9_Init(params.hFocusWindow, pd3dDevice);
 
 		HookWindowProc(params.hFocusWindow);
-		initializeClient();
+
+		int width = 0;
+		int height = 0;
+		RECT rect;
+		if (GetClientRect(params.hFocusWindow, &rect))
+		{
+			width = rect.right - rect.left;
+			height = rect.bottom - rect.top;
+		}
+
+		initializeClient(width, height);
 
 		initialized = true;
 

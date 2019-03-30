@@ -1,7 +1,8 @@
 #include "TrackManagementClient.h"
 
-TrackManagementClient::TrackManagementClient(std::shared_ptr<grpc::Channel> channel)
+TrackManagementClient::TrackManagementClient(int windowWidth, int windowHeight, std::shared_ptr<grpc::Channel> channel)
 	: m_stub(new trackmanagement::TrackManager::Stub(channel))
+	, m_gameWindowRect(windowWidth, windowHeight)
 {
 }
 TrackManagementClient::~TrackManagementClient()

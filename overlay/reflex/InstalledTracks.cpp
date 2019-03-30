@@ -1,6 +1,6 @@
 #include "InstalledTracks.h"
 #include "imgui/imgui.h"
-
+#include "GameWindow.h"
 
 InstalledTracks::InstalledTracks(std::shared_ptr<TrackManagementClient> client, const char* trackType)
 	: m_trackManagementClient(client)
@@ -46,10 +46,10 @@ void InstalledTracks::render()
 
 void InstalledTracks::drawTable(const std::vector<trackmanagement::Track>& tracks)
 {
-	static float height = 14.0f;
-	static float tableWidth = 925.0f;
-	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
-	ImGui::BeginChild("installed tracks body", ImVec2(0, ImGui::GetFontSize() * height), true, ImGuiWindowFlags_HorizontalScrollbar);
+	ImVec2 tableSize = game_window::ScaleWindowSize(ImVec2(925.0f, 14.0f), m_trackManagementClient->getGameWindowRect());
+	tableSize.x = 925;
+	ImGui::SetNextWindowContentSize(ImVec2(tableSize.x, 0.0f));
+	ImGui::BeginChild("installed tracks body", ImVec2(0, ImGui::GetFontSize() * tableSize.y), true, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::Columns(7, "installedTracks");
 
 	setTableColumnWidth();

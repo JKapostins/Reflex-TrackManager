@@ -1,6 +1,7 @@
 #include "SharedTracks.h"
 #include "grpc/TrackManagementClient.h"
 #include "imgui/imgui.h"
+#include "GameWindow.h"
 
 
 SharedTracks::SharedTracks(std::shared_ptr<TrackManagementClient> client)
@@ -15,8 +16,17 @@ SharedTracks::~SharedTracks()
 
 void SharedTracks::render()
 {
-	ImGui::SetNextWindowSize(ImVec2(466, 244), ImGuiCond_Always);
-	ImGui::SetNextWindowPos(ImVec2(976, 49), ImGuiCond_Always);
+	ImVec2 windowDimensions = game_window::ScaleWindowSize(ImVec2(466, 244), m_trackManagementClient->getGameWindowRect());
+	ImGui::SetNextWindowSize(windowDimensions, ImGuiCond_Always);
+	ImGui::SetNextWindowPos(game_window::ScaleWindowSize(ImVec2(976, 49), m_trackManagementClient->getGameWindowRect()), ImGuiCond_Always);
+	bool adjustContentSize = m_trackManagementClient->getGameWindowRect().x < 1920;
+	static float offset = 5;
+	float contentHeight = windowDimensions.y + offset;
+
+	if (adjustContentSize)
+	{
+		ImGui::SetNextWindowContentSize(ImVec2(0, contentHeight));
+	}
 	if (ImGui::Begin("Publicly Shared Track Lists", nullptr, ImGuiWindowFlags_NoResize))
 	{
 		drawTable();
@@ -37,11 +47,10 @@ void SharedTracks::drawTable()
 		m_selectedListName = sharedList[0].name();
 	}
 
-
-	static float height = 14.0f;
-	static float tableWidth = 400.0f;
-	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
-	ImGui::BeginChild("installed tracks body", ImVec2(0, ImGui::GetFontSize() * height), true, ImGuiWindowFlags_HorizontalScrollbar);
+	ImVec2 tableSize = game_window::ScaleWindowSize(ImVec2(400, 14), m_trackManagementClient->getGameWindowRect());
+	tableSize.x = 400;
+	ImGui::SetNextWindowContentSize(ImVec2(tableSize.x, 0.0f));
+	ImGui::BeginChild("installed tracks body", ImVec2(0, ImGui::GetFontSize() * tableSize.y), true, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::Columns(3, "installedTracks");
 
 	ImGui::Text("Track Set Name"); ImGui::NextColumn();

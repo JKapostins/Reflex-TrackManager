@@ -11,7 +11,7 @@ class TrackManagementClient;
 class OverlayKernel
 {
 public:
-	OverlayKernel();
+	OverlayKernel(int width, int height);
 	~OverlayKernel();
 	void render(LPDIRECT3DDEVICE9 device);
 	void setVisibility(bool visible);

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <turbojpeg.h>
 #include "imgui/imgui.h"
+#include "GameWindow.h"
 
 
 
@@ -65,9 +66,19 @@ TrackSelection::~TrackSelection()
 
 void TrackSelection::render(LPDIRECT3DDEVICE9 device)
 {
-	ImGui::SetNextWindowSize(ImVec2(960, 982), ImGuiCond_Always);
-	ImGui::SetNextWindowPos(ImVec2(10, 49), ImGuiCond_Always);
-	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize))
+	bool stackButtons = m_trackManagementClient->getGameWindowRect().x < 1920;
+	ImVec2 windowDimensions = game_window::ScaleWindowSize(ImVec2(960, 982), m_trackManagementClient->getGameWindowRect());
+	ImGui::SetNextWindowSize(windowDimensions, ImGuiCond_Always);
+	ImGui::SetNextWindowPos(game_window::ScaleWindowSize(ImVec2(10, 49), m_trackManagementClient->getGameWindowRect()), ImGuiCond_Always);
+
+	if (stackButtons)
+	{
+		static float offset = 105;
+		windowDimensions.y += offset; // because buttons become stacked.
+		ImGui::SetNextWindowContentSize(ImVec2(0, windowDimensions.y));
+	}
+	
+	if (ImGui::Begin("Track Selection", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar))
 	{
 		static int previousTrackTypeIndex = 0;
 		static int previousSlotTypeIndex = 0;
@@ -125,11 +136,10 @@ void TrackSelection::drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanag
 	}
 
 	ImVec2 windowSize = ImGui::GetWindowSize();
-	static int imagePreviewWindowWidth = 656;
-	static int imagePreviewWindowHeight = 376;
+	ImVec2 previewDimensions = game_window::ScaleWindowSize(ImVec2(656, 376), m_trackManagementClient->getGameWindowRect());
 
-	ImGui::SetCursorPosX((windowSize.x / 2) - (imagePreviewWindowWidth / 2));
-	ImGui::BeginChild("preview image", ImVec2(imagePreviewWindowWidth, imagePreviewWindowHeight), true);
+	ImGui::SetCursorPosX((windowSize.x / 2) - (previewDimensions.x / 2));
+	ImGui::BeginChild("preview image", previewDimensions, true);
 	if (m_previewImage != nullptr)
 	{
 		ImGui::Image(m_previewImage, ImVec2(m_previeImageWidth, m_previewImageHeight));
@@ -141,10 +151,10 @@ void TrackSelection::drawPreviewImage(LPDIRECT3DDEVICE9 device, const trackmanag
 void TrackSelection::drawComboBoxes()
 {
 	ImVec2 windowSize = ImGui::GetWindowSize();
-	static int filtersWidth = 656;
-	static float filtersHeight = 75;
-	ImGui::SetCursorPosX((windowSize.x / 2) - (filtersWidth / 2));
-	ImGui::BeginChild("filters", ImVec2(filtersWidth, filtersHeight));
+	ImVec2 filterDimensions = game_window::ScaleWindowSize(ImVec2(656, 75), m_trackManagementClient->getGameWindowRect());
+	filterDimensions.y = 75;
+	ImGui::SetCursorPosX((windowSize.x / 2) - (filterDimensions.x / 2));
+	ImGui::BeginChild("filters", filterDimensions);
 
 	ImGui::Combo("Track Type Filter", &m_trackTypeFilterIndex, g_trackTypeComboItems, IM_ARRAYSIZE(g_trackTypeComboItems));
 
@@ -156,10 +166,10 @@ void TrackSelection::drawComboBoxes()
 
 void TrackSelection::drawTableBody()
 {
-	static float height = 34.0f;
-	static float tableWidth = 1024.0f;
-	ImGui::SetNextWindowContentSize(ImVec2(tableWidth, 0.0f));
-	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * height), true, ImGuiWindowFlags_HorizontalScrollbar);
+	ImVec2 tableDimensions = game_window::ScaleWindowSize(ImVec2(1024, 34), m_trackManagementClient->getGameWindowRect());
+	tableDimensions.x = 1024;
+	ImGui::SetNextWindowContentSize(ImVec2(tableDimensions.x, 0.0f));
+	ImGui::BeginChild("body", ImVec2(0, ImGui::GetFontSize() * tableDimensions.y), true, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::Columns(8, "availabletracks");
 
 	setTableColumnWidth();
@@ -217,28 +227,46 @@ void TrackSelection::drawActionButtons()
 	ImVec2 windowSize = ImGui::GetWindowSize();
 
 	//Hardcoding position because window is fixed size and i'm tired
-	static float offsetX = 50;
-	static float offsetY = 34.0f;
+	bool stackButtons = m_trackManagementClient->getGameWindowRect().x < 1920;
+	if (stackButtons == false)
+	{
+		static float offsetX = 50;
+		static float offsetY = 34.0f;
 
-	ImGui::SetCursorPosX(offsetX);
-	ImGui::SetCursorPosY(windowSize.y - offsetY);
+		ImGui::SetCursorPosX(offsetX);
+		ImGui::SetCursorPosY(windowSize.y - offsetY);
+	}
 
 	ImGui::BeginChild("actions");
 	if (ImGui::Button("Install Random National Tracks"))
 	{
 		m_trackManagementClient->installRandomNationals();
 	}
-	ImGui::SameLine();
+
+	if (stackButtons == false)
+	{
+		ImGui::SameLine();
+	}
+
 	if (ImGui::Button("Install Random Supercross Tracks"))
 	{
 		m_trackManagementClient->installRandomSupercross();
 	}
-	ImGui::SameLine();
+
+	if (stackButtons == false)
+	{
+		ImGui::SameLine();
+	}
+
 	if (ImGui::Button("Install Random FreeRide Tracks"))
 	{
 		m_trackManagementClient->installRandomFreeRides();
 	}
-	ImGui::SameLine();
+
+	if (stackButtons == false)
+	{
+		ImGui::SameLine();
+	}
 	if (ImGui::Button("Install Selected Track"))
 	{
 		m_trackManagementClient->installSelectedTrack(m_selectedTrackName.c_str());
