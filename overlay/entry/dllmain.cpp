@@ -138,8 +138,8 @@ void EvtIndiciumD3D9PreEndScene(
 
 		HookWindowProc(params.hFocusWindow);
 
-		int width = 0;
-		int height = 0;
+		int width = 1920;
+		int height = 1080;
 		RECT rect;
 		if (GetClientRect(params.hFocusWindow, &rect))
 		{
