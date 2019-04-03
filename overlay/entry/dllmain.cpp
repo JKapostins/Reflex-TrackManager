@@ -147,6 +147,13 @@ void EvtIndiciumD3D9PreEndScene(
 			height = rect.bottom - rect.top;
 		}
 
+		//Got a report of 0 width and height from GetClientRect. This is a hack to fix that
+		if (width < 200)
+		{
+			width = 1920;
+			height = 1080;
+		}
+
 		initializeClient(width, height);
 
 		initialized = true;

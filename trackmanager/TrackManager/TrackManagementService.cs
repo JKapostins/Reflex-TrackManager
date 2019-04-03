@@ -192,7 +192,7 @@ namespace TrackManager
                     }
                 case "Date Created":
                     {
-                        tracks = tracks.OrderBy(t => t.Date).ToArray();
+                        tracks = tracks.OrderByDescending(t => t.Date).ToArray();
                         break;
                     }
                 case "Installs":
