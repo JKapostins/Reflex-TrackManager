@@ -12,7 +12,7 @@
     "framework"     : "netcoreapp2.1",
     "function-runtime" : "dotnetcore2.1",
     "function-memory-size" : 1024,
-    "function-timeout"     : 300,
+    "function-timeout"     : 900,
     "function-handler"     : "PollDs19TrackList::PollDs19TrackList.Function::FunctionHandler",
     "function-name"        : "PollDs19TrackList",
     "function-role"        : "arn:aws:iam::809015461931:role/LambdaS3",

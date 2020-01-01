@@ -35,13 +35,6 @@ namespace PollDs19TrackList
 
             foreach (var newTrack in newTrackNames)
             {
-                //GNARLY_TODO: Get DS to fix these
-                if (newTrack == "2016 Las Vegas SX"
-                    || newTrack == "2017 Monster Energy Cup")
-                {
-                    continue;
-                }
-
                 context.Logger.LogLine(string.Format("Attempting to parse new track ({0})", newTrack));
                 
                 var parsedTrack = parser.ParseTrack(newTrack);
