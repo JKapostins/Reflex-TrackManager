@@ -94,10 +94,17 @@ namespace UploadReflexTrackToS3
                 else if (googleDrive == false) //no support for downloading data directly from google drive
                 {
                     context.Logger.LogLine(string.Format("Attempting to copy {0} to invalid track bucket.", track.SourceTrackUrl));
-                    using (Stream invalidStream = new MemoryStream(client.DownloadData(track.SourceTrackUrl)))
+                    try
                     {
-                        var uploadTask = AwsS3Utility.UploadFileAsync(invalidStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
-                        uploadTask.Wait();
+                        using (Stream invalidStream = new MemoryStream(client.DownloadData(track.SourceTrackUrl)))
+                        {
+                            var uploadTask = AwsS3Utility.UploadFileAsync(invalidStream, string.Format("{0}/{1}", bucketName, folderName), trackFileName, RegionEndpoint.USEast1);
+                            uploadTask.Wait();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine($"Failed to download track from source: {track.SourceTrackUrl}");
                     }
                 }
             }
